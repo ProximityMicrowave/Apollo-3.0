@@ -15,17 +15,46 @@ end
 frame:SetScript("OnEvent", frame.OnEvent);
 
 function apollo_OnUpdate(self, elapsed)
-	local r, g, b, idealTarget
-	r, g, b = 0, 0, 0
+	local r, g, b, target, ability
 	
-	ColorDot:SetColorTexture(r,g,b,1)
+	ability, target = apollo.skillController()
+	target = apollo.targetController(target)
+	
+	local a, t = ability, target
+	
+	if t then ColorDot:SetColorTexture(t/255,0,0,1); return; end;
+	if a then ColorDot:SetColorTexture(a/255,a/255,a/255,1); return; end;
+		
+	ColorDot:SetColorTexture(0,0,0,1)
+end
+
+function apollo.skillController()
+	local skillRotation = apollo.skillRotation
+	local priorityTarget = apollo.sortPriority()
+	
+	for i in ipairs(skillRotation) do
+		for j in ipairs(priorityTarget) do
+			if skillRotation[i](priorityTarget[j]) then return i, priorityTarget[j]; end;
+		end
+	end
+	
+end
+
+function apollo.targetController(target)
+	local groupNames = apollo.groupNames
+	if target == nil or UnitIsUnit("focus", target) then return false; end;
+	
+	for i in ipairs(groupNames) do
+		if groupNames[i] == target then return i; end
+	end
+	return false
 end
 
 function apollo.getPlayerRotation()
 	local playerClass = UnitClass("player")
 	local playerSpec = select(2,GetSpecializationInfo(GetSpecialization()))
-		
-	if playerClass == "Druid" and playerSpec == "Restoration" then apollo.skillRotation = {apollo.druid.healHealingTouch, apollo.druid.regrowth}; end;
+	
+	if playerClass == "Druid" and playerSpec == "Restoration" then local AD = apollo.druid; apollo.skillRotation = AD.restorationSkillRotation(); end;
 end
 
 function apollo.assignKeybindings()
@@ -40,9 +69,10 @@ function apollo.assignKeybindings()
 		offset = -1
 	end
 
-	for i=1,40 do
+	for i=1,41 do
 		local target = groupType..(i + offset)
 		if target == "party0" then target = "player"; end;
+		if i == 41 then target = "target"; end;
 		apollo.groupNames[i] = target
 		
 		local btnName = "apolloTarget"..i
@@ -56,7 +86,7 @@ function apollo.assignKeybindings()
 	local skillRotation = apollo.skillRotation or {}
 	for i in ipairs(skillRotation) do
 		local btnName = "skill"..i
-		local skillName = select(2, skillRotation[i]())
+		local skillName = select(2, skillRotation[i]("player"))
 		local btn = CreateFrame("Button", btnName, UIParent, "SecureActionButtonTemplate")
 		btn:SetAttribute("type", "macro")
 		btn:SetAttribute("macrotext", "/use [nochanneling,@focus]"..skillName)
@@ -80,14 +110,13 @@ function apollo.sortPriority()
 		i = i + 1;
 	end;
 	
-	table.insert(priority, "target")
+--	table.insert(priority, "target")
 
 	return priority
 
 end
 
 function apollo.unitHealthPct(target)
-
 	local health = UnitHealth(target)
 	local healthMax = UnitHealthMax(target)
 	local incomingHealth = UnitGetIncomingHeals(target) or 0
@@ -115,6 +144,15 @@ end
 function apollo.missingHealth(target)
 	local health, healthMax, incomingHealth = UnitHealth(target), UnitHealthMax(target), UnitGetIncomingHeals(target) or 0
 	return (healthMax - (health + incomingHealth))
+end
+
+function apollo.hasThreat(target)
+	local threat = UnitThreatSituation(target) or 0
+	if threat >= 2 then return true else return false; end;
+end
+
+function apollo.isFriend(target)
+	return UnitIsFriend("player",target)
 end
 
 function spairs(t, order)
