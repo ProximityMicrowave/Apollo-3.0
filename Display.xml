@@ -2,7 +2,7 @@
 
 <Frame name="Apollo_Frame" parent="UIParent">
 	<Scripts>
-		<OnUpdate function="Apollo_OnUpdate" />
+		<OnUpdate function="apollo_OnUpdate" />
 	</Scripts>
 	<Size x="1" y="1"/>
 	<Anchors>
