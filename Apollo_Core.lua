@@ -155,6 +155,46 @@ function apollo.isFriend(target)
 	return UnitIsFriend("player",target)
 end
 
+function apollo.offCooldown(spellName)
+	local cooldown = select(2,GetSpellCooldown(spellName))
+	if (cooldown < 2) then return true else return false; end;
+end
+
+function apollo.lowHealthCount(health, spellName)
+	--if the input is between 0 and 1 the function will read it as a percentage, and check how many in the group have less than the input in percentage health.
+	--if the input is greater than 1 the function will read it as a raw value and return how many in the group have less than the input value in raw health.
+	--if the input is less than zero (a negative number) then it will check how many group members are missing more than that amount of health
+	
+	local count = 0
+	
+	if health < 0 then
+		health = health * -1
+		for i,v in ipairs(apollo.groupNames) do
+			if (apollo.missingHealth(v) >= health and UnitExists(v)) and apollo.inRange(spellName, apollo.groupNames[i]) then count = count + 1; end;
+		end
+	elseif health <= 1 then
+		for i,v in ipairs(apollo.groupNames) do
+			if (apollo.unitHealthPct(v) <= health and UnitExists(v)) and apollo.inRange(spellName, apollo.groupNames[i]) then count = count + 1; end;
+		end
+	elseif health > 1 then
+		for i,v in ipairs(apollo.groupNames) do
+			if (UnitHealth(v) <= health and UnitExists(v)) and apollo.inRange(spellName, apollo.groupNames[i]) then count = count + 1; end;
+		end
+	end
+		
+	return count
+end
+
+function apollo.healHealthstone(target)
+	local spellName = "Healthstone"
+	local cooldown = select(2,GetItemCooldown(5512))
+	local count = GetItemCount(5512)
+	
+	local spellCast = (apollo.notDead(target)) and (UnitIsUnit("player",target)) and (cooldown < 2) and (count > 0) and (apollo.unitHealthPct(target) < .7)
+	
+	return spellCast, spellName
+end
+
 function spairs(t, order)
     -- collect the keys
     local keys = {}
