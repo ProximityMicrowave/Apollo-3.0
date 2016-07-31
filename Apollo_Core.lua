@@ -1,6 +1,7 @@
 apollo = {}
 apollo.druid = {}
 apollo.groupNames = {}
+apollo.aoeToggle = false
 
 local frame = CreateFrame("FRAME");
 frame:RegisterEvent("PLAYER_ENTERING_WORLD");
@@ -54,7 +55,9 @@ function apollo.getPlayerRotation()
 	local playerClass = UnitClass("player")
 	local playerSpec = select(2,GetSpecializationInfo(GetSpecialization()))
 	
-	if playerClass == "Druid" and playerSpec == "Restoration" then local AD = apollo.druid; apollo.skillRotation = AD.restorationSkillRotation(); end;
+	apollo.skillRotation = {}
+	if playerClass == "Druid" and playerSpec == "Restoration" then apollo.skillRotation = apollo.druid.restorationSkillRotation(); end;
+	if playerClass == "Druid" and playerSpec == "Feral" then apollo.skillRotation = apollo.druid.feralSkillRotation(); end;
 end
 
 function apollo.assignKeybindings()
@@ -158,6 +161,24 @@ end
 function apollo.offCooldown(spellName)
 	local cooldown = select(2,GetSpellCooldown(spellName))
 	if (cooldown < 2) then return true else return false; end;
+end
+
+function apollo.getEnergy()
+	return UnitPower("player",3)
+end
+
+function apollo.getComboPoints()
+	return UnitPower("player",4)
+end
+
+function apollo.canInterupt(target)
+	local name, nameSubtext, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(target)
+	if name and (not notInterruptible) then return true else return false; end;
+end
+
+function apollo.aoeMode()
+	apollo.aoeToggle = not apollo.aoeToggle
+	if apollo.aoeToggle then print("AoE Mode: ACTIVE") else print("AoE Mode: INACTIVE"); end;
 end
 
 function apollo.lowHealthCount(health, spellName)

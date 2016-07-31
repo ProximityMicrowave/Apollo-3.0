@@ -7,6 +7,9 @@ local unitHealthPct = apollo.unitHealthPct
 local hasThreat = apollo.hasThreat
 local isFriend = apollo.isFriend
 local offCooldown = apollo.offCooldown
+local getEnergy = apollo.getEnergy
+local getComboPoints = apollo.getComboPoints
+local canInterupt = apollo.canInterupt
 
 function AD.restorationSkillRotation()
 	local skillRotation = {
@@ -22,6 +25,24 @@ function AD.restorationSkillRotation()
 		AD.healHealingTouch,
 		AD.attackSolarWrath,
 	}
+	return skillRotation
+end
+
+function AD.feralSkillRotation()
+	local skillRotation = {
+		AD.healRenewal,
+		AD.healPredatorySwiftness,
+		apollo.healHealthstone,
+		AD.attackSkullBash,
+		AD.aoeThrash,
+		AD.aoeSwipe,
+		AD.attackRip,
+		AD.attackFerociousBite,
+		AD.attackRake,
+		AD.attackShred,
+		AD.attackTigersFury,
+	}
+
 	return skillRotation
 end
 
@@ -107,33 +128,6 @@ function AD.healRenewal(target)
 	return spellCast, spellName
 end
 
-function AD.Healthstone(spellTarget, rebind)
-	if spellTarget == nil or spellTarget == false then spellTarget = "player"; end;
-	local __func__ = "Apollo.Druid.Healthstone"
-	
-	local spellCast = false
-	local spellName = "Healthstone"
-	local keybinding = 10
-	if rebind == true then Apollo.CreateSkillButtons(__func__, spellName, "focus", keybinding);return; end;
-	if (not UnitExists(spellTarget)) or spellTarget ~= "player" then return false, 0, keybinding; end;
-	
-	local isDead = UnitIsDeadOrGhost(spellTarget)
-	local inRange = IsSpellInRange(spellName,spellTarget)
-	local isUsable,noMana = IsUsableSpell(spellName)
-	local unitHealthPct = Apollo.UnitHealthPct(spellTarget)
-	local cooldown = select(2,GetItemCooldown(5512))
-	local count = GetItemCount(5512)
-	
---	print(cooldown)
-	if (not isDead) 
-	and (unitHealthPct < .7)
-	and (cooldown < 2)
-	and (count > 0)
-	then spellCast = true; end;
-
-	return spellCast, spellHeal, keybinding
-end
-
 function AD.healSwiftmend(target)
 	local spellName = "Swiftmend"
 	local spellCast = ((notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and isFriend(target) and (offCooldown(spellName)) and (unitHealthPct(target) < .3))
@@ -151,6 +145,75 @@ end
 function AD.healWildGrowth(target)
 	local spellName = "Wild Growth"
 	local spellCast = ((notDead(target)) and (isUsable(spellName)) and (offCooldown(spellName)) and (apollo.lowHealthCount(.7,"Regrowth") >= 3))
+	
+	return spellCast, spellName
+end
+
+function AD.attackShred(target)
+	local spellName = "Shred"
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (getEnergy() > 65)
+	
+	return spellCast, spellName
+end
+
+function AD.attackRake(target)
+	local spellName = "Rake"
+	local unitDebuff = UnitDebuff("target","Rake")
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (getEnergy() > 65) and (not unitDebuff)
+	
+	return spellCast, spellName
+end
+
+function AD.aoeThrash(target)
+	local spellName = "Thrash"
+	local unitDebuff = UnitDebuff("target","Thrash")
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange("Shred",target)) and (isUsable(spellName)) and (getEnergy() > 65) and (not unitDebuff) and (apollo.aoeToggle)
+	
+	return spellCast, spellName
+end
+
+function AD.aoeSwipe(target)
+	local spellName = "Swipe"
+	local unitDebuff = UnitDebuff("target","Thrash")
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange("Shred",target)) and (isUsable(spellName)) and (unitDebuff) and (apollo.aoeToggle)
+	
+	return spellCast, spellName
+end
+
+function AD.attackFerociousBite(target)
+	local spellName = "Ferocious Bite"
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (getComboPoints() == 5)
+	
+	return spellCast, spellName
+end
+
+function AD.attackRip(target)
+	local spellName = "Rip"
+	local unitDebuff = UnitDebuff("target","Rip")
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (getComboPoints() == 5) and (not unitDebuff)
+	
+	return spellCast, spellName
+end
+
+function AD.healPredatorySwiftness(target)
+	local spellName = "Healing Touch"
+	local unitBuff = UnitBuff("player","Predatory Swiftness")
+	local spellCast = (isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (unitHealthPct(target) < 1) and unitBuff
+	
+	return spellCast, spellName
+end
+
+function AD.attackSkullBash(target)
+	local spellName = "Skull Bash"
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (offCooldown(spellName)) and (canInterupt(target))
+	
+	return spellCast, spellName
+end
+
+function AD.attackTigersFury(target)
+	local spellName = "Tiger's Fury"
+	local unitBuff = UnitBuff("player","Clearcasting")
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange("shred",target)) and (isUsable(spellName)) and ((getEnergy() < 30) or (not unitBuff))
 	
 	return spellCast, spellName
 end
