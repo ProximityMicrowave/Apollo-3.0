@@ -9,3 +9,5 @@
 Apollo_Core.lua
 Apollo_keybindings.lua
 Display.xml
+
+Apollo_druidModule.lua
