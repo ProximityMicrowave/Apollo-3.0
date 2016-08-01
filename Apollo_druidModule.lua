@@ -82,7 +82,7 @@ function AD.healNaturesCure(target)
 	local spellName = "Nature's Cure"
 	
 	local debuff = false
-	local debuffList = {"Aqua Bomb", "Shadow Word: Pain", "Corruption", "Drain Life", "Curse of Exhaustion", "Immolate", "Conflagrate", "Dancing Flames", "Withering Flames", "Salve of Toxic Fumes", "Felfire Shock", "Time Lapse", "Subjugate", "Flame Buffet", "Veil of Shadow", "Venom Spit", "Eyes in the Dark", "Curse of Tongues", "Shiver", "Beast's Mark", "Poisoned Spear", "Pustulant Flesh", "Unstable Afliction"}
+	local debuffList = {"Aqua Bomb", "Shadow Word: Pain", "Corruption", "Drain Life", "Curse of Exhaustion", "Immolate", "Conflagrate", "Dancing Flames", "Withering Flames", "Salve of Toxic Fumes", "Felfire Shock", "Time Lapse", "Subjugate", "Flame Buffet", "Veil of Shadow", "Venom Spit", "Eyes in the Dark", "Curse of Tongues", "Shiver", "Beast's Mark", "Poisoned Spear", "Pustulant Flesh", "Soulbane", "Shadow Word: Agony", "Corrupted Slash", "Touch of Harm", "Unstable Afliction"}
 	
 	for i,v in ipairs(debuffList) do
 		if UnitDebuff(target,v) then debuff = true; break; end;
