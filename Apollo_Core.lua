@@ -9,6 +9,7 @@ frame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED");
 frame:RegisterEvent("GROUP_ROSTER_UPDATE")
 frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 function frame:OnEvent(event, arg1)	
+	apollo.skillRotation = {}
 	apollo.getPlayerRotation()
 	apollo.assignKeybindings()
 	
@@ -55,13 +56,12 @@ function apollo.getPlayerRotation()
 	local playerClass = UnitClass("player")
 	local playerSpec = select(2,GetSpecializationInfo(GetSpecialization()))
 	
-	apollo.skillRotation = {}
 	if playerClass == "Druid" and playerSpec == "Restoration" then apollo.skillRotation = apollo.druid.restorationSkillRotation(); end;
 	if playerClass == "Druid" and playerSpec == "Feral" then apollo.skillRotation = apollo.druid.feralSkillRotation(); end;
 end
 
 function apollo.assignKeybindings()
-	if InCombatLockdown() then return; end;
+	if InCombatLockdown() then return print("Error: Keyrebinding Failed"); end;
 	local groupType, offset
 	
 	if IsInRaid() == true then 
@@ -73,13 +73,14 @@ function apollo.assignKeybindings()
 	end
 
 	for i=1,41 do
+		local btn
 		local target = groupType..(i + offset)
 		if target == "party0" then target = "player"; end;
 		if i == 41 then target = "target"; end;
 		apollo.groupNames[i] = target
 		
 		local btnName = "apolloTarget"..i
-		local btn = CreateFrame("Button", btnName, UIParent, "SecureActionButtonTemplate")
+		if not _G[btnName] then btn = CreateFrame("Button", btnName, UIParent, "SecureActionButtonTemplate") else btn = _G[btnName]; end;
 		btn:SetAttribute("type", "macro");
 		btn:SetAttribute("macrotext", "/focus "..target)
 		SetBinding(apollo.targetKeybinding[i])
@@ -88,9 +89,10 @@ function apollo.assignKeybindings()
 	--------------------------------------------------------------------------------------
 	local skillRotation = apollo.skillRotation or {}
 	for i in ipairs(skillRotation) do
+		local btn
 		local btnName = "skill"..i
 		local skillName = select(2, skillRotation[i]("player"))
-		local btn = CreateFrame("Button", btnName, UIParent, "SecureActionButtonTemplate")
+		if not _G[btnName] then btn = CreateFrame("Button", btnName, UIParent, "SecureActionButtonTemplate") else btn = _G[btnName]; end;
 		btn:SetAttribute("type", "macro")
 		btn:SetAttribute("macrotext", "/use [nochanneling,@focus]"..skillName)
 		SetBinding(apollo.abilityKeybinding[i])
@@ -116,7 +118,6 @@ function apollo.sortPriority()
 --	table.insert(priority, "target")
 
 	return priority
-
 end
 
 function apollo.unitHealthPct(target)
@@ -164,6 +165,7 @@ function apollo.offCooldown(spellName)
 end
 
 function apollo.getEnergy()
+	if UnitBuff("player","Clearcasting") then return 150; end;
 	return UnitPower("player",3)
 end
 

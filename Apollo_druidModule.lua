@@ -59,8 +59,9 @@ function AD.healRejuvenation(target)
 	local unitBuff
 	if select(4,GetTalentInfo(6,3,1)) then unitBuff = UnitBuff(target,"Rejuvenation (Germination)") and UnitBuff(target,"Rejuvenation") and true
 	else unitBuff = UnitBuff(spellTarget,"Rejuvenation"); end
+	local abundanceStacks = UnitBuff("player","Abundance")
 	
-	local spellCast = (isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (not unitBuff) and ((unitHealthPct(target) < .9) or (hasThreat(target)))
+	local spellCast = (isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (not unitBuff) and (unitHealthPct(target) < .9) and (abundanceStacks < 10)
 
 	return spellCast, spellName
 end
@@ -98,7 +99,7 @@ function AD.healRegrowth(target)
 	
 	local conditionSet1 = ((notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and isFriend(target))
 	local conditionSet2 = ((unitHealthPct(target) < 1) and (currentSpeed == 0) and (AD.lastRegrowth < GetTime() - 1) and (clearcasting))
-	local conditionSet3 = ((hasThreat(target)) and (unitHealthPct(target) < .7))
+	local conditionSet3 = ((hasThreat(target)) and (unitHealthPct(target) < .7) and (not IsInRaid()))
 	local spellCast = conditionSet1 and (conditionSet2 or conditionSet3)
 	
 	return spellCast, spellName
@@ -198,7 +199,7 @@ end
 function AD.healPredatorySwiftness(target)
 	local spellName = "Healing Touch"
 	local unitBuff = UnitBuff("player","Predatory Swiftness")
-	local spellCast = (isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (unitHealthPct(target) < 1) and unitBuff
+	local spellCast = (isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and unitBuff
 	
 	return spellCast, spellName
 end
