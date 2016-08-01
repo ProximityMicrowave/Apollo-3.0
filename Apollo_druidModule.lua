@@ -10,6 +10,7 @@ local offCooldown = apollo.offCooldown
 local getEnergy = apollo.getEnergy
 local getComboPoints = apollo.getComboPoints
 local canInterupt = apollo.canInterupt
+local lowMan = apollo.lowMana
 
 function AD.restorationSkillRotation()
 	local skillRotation = {
@@ -46,10 +47,14 @@ function AD.feralSkillRotation()
 	return skillRotation
 end
 
+function AD.condBaseHealResto(target, spellName)
+	return (isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (not lowMana)
+end
+
 function AD.healHealingTouch(target)
 	local spellName = "Healing Touch"
 	local heal = (GetSpellBonusHealing() * 4)
-	local spellCast = (isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (missingHealth(target) > heal)
+	local spellCast = AD.condBaseHealResto(target,spellName) and (missingHealth(target) > heal)
 	
 	return spellCast, spellName
 end
@@ -59,7 +64,7 @@ function AD.healRejuvenation(target)
 	local unitBuff
 	if select(4,GetTalentInfo(6,3,1)) then unitBuff = UnitBuff(target,"Rejuvenation (Germination)") and UnitBuff(target,"Rejuvenation") and true
 	else unitBuff = UnitBuff(spellTarget,"Rejuvenation"); end
-	local abundanceStacks = UnitBuff("player","Abundance")
+	local abundanceStacks = select(4,UnitBuff("player","Abundance")) or 0
 	
 	local spellCast = (isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (not unitBuff) and (unitHealthPct(target) < .9) and (abundanceStacks < 10)
 
@@ -77,14 +82,14 @@ function AD.healNaturesCure(target)
 	local spellName = "Nature's Cure"
 	
 	local debuff = false
-	local debuffList = {"Aqua Bomb", "Shadow Word: Pain", "Corruption", "Drain Life", "Curse of Exhaustion", "Immolate", "Conflagrate", "Dancing Flames", "Withering Flames", "Salve of Toxic Fumes", "Felfire Shock", "Time Lapse", "Subjugate", "Flame Buffet", "Veil of Shadow", "Venom Spit", "Eyes in the Dark", "Curse of Tongues", "Shiver", "Beast's Mark", "Poisoned Spear", "Pustulant Flesh", "Poison Nova", "Unstable Afliction"}
+	local debuffList = {"Aqua Bomb", "Shadow Word: Pain", "Corruption", "Drain Life", "Curse of Exhaustion", "Immolate", "Conflagrate", "Dancing Flames", "Withering Flames", "Salve of Toxic Fumes", "Felfire Shock", "Time Lapse", "Subjugate", "Flame Buffet", "Veil of Shadow", "Venom Spit", "Eyes in the Dark", "Curse of Tongues", "Shiver", "Beast's Mark", "Poisoned Spear", "Pustulant Flesh", "Unstable Afliction"}
 	
 	for i,v in ipairs(debuffList) do
 		if UnitDebuff(target,v) then debuff = true; break; end;
 	end
 	if UnitDebuff(target,"Unstable Affliction") then debuff = false; end;
 	
-	local spellCast = (isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and debuff and (offCooldown(spellName))
+	local spellCast = AD.condBaseHealResto(target, spellName) and debuff and (offCooldown(spellName))
 	
 	return spellCast, spellName
 end
@@ -115,7 +120,7 @@ function AD.healLifeBloom(target)
 		end
 	end
 	
-	local conditionSet1 = ((notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and isFriend(target))
+	local conditionSet1 = AD.condBaseHealResto(target, spellName)
 	local conditionSet2 = (hasThreat(target)) and (not unitBuff)
 	local spellCast = conditionSet1 and conditionSet2
 	
@@ -131,7 +136,7 @@ end
 
 function AD.healSwiftmend(target)
 	local spellName = "Swiftmend"
-	local spellCast = ((notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and isFriend(target) and (offCooldown(spellName)) and (unitHealthPct(target) < .3))
+	local spellCast = (AD.condBaseHealResto(target, spellName) and (offCooldown(spellName)) and (unitHealthPct(target) < .3))
 	
 	return spellCast, spellName
 end

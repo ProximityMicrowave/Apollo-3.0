@@ -145,6 +145,10 @@ function apollo.isUsable(spellName)
 	return isUsable and not noMana;
 end
 
+function apollo.lowMana()
+	if (UnitPower("player",0) / UnitPowerMax("player",0)) < .1 then return true else return false; end;
+end
+
 function apollo.missingHealth(target)
 	local health, healthMax, incomingHealth = UnitHealth(target), UnitHealthMax(target), UnitGetIncomingHeals(target) or 0
 	return (healthMax - (health + incomingHealth))
