@@ -11,41 +11,7 @@ local getEnergy = apollo.getEnergy
 local getComboPoints = apollo.getComboPoints
 local canInterupt = apollo.canInterupt
 local lowMan = apollo.lowMana
-
-function AD.restorationSkillRotation()
-	local skillRotation = {
-		AD.healNaturesCure,
-		AD.healRenewal,
-		apollo.healHealthstone,
-		AD.healSwiftmend,
-		AD.healTranquility,
-		AD.healWildGrowth,
-		AD.healLifeBloom,
-		AD.healRegrowth,
-		AD.healRejuvenation,
-		AD.healHealingTouch,
-		AD.attackSolarWrath,
-	}
-	return skillRotation
-end
-
-function AD.feralSkillRotation()
-	local skillRotation = {
-		AD.healRenewal,
-		AD.healPredatorySwiftness,
-		apollo.healHealthstone,
-		AD.attackSkullBash,
-		AD.aoeThrash,
-		AD.aoeSwipe,
-		AD.attackRip,
-		AD.attackFerociousBite,
-		AD.attackRake,
-		AD.attackShred,
-		AD.attackTigersFury,
-	}
-
-	return skillRotation
-end
+local isMoving = apollo.isMoving
 
 function AD.condBaseHealResto(target, spellName)
 	return (isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (not lowMana)
@@ -54,7 +20,7 @@ end
 function AD.healHealingTouch(target)
 	local spellName = "Healing Touch"
 	local heal = (GetSpellBonusHealing() * 4)
-	local spellCast = AD.condBaseHealResto(target,spellName) and (missingHealth(target) > heal)
+	local spellCast = AD.condBaseHealResto(target,spellName) and (missingHealth(target) > heal) and (not isMoving())
 	
 	return spellCast, spellName
 end
@@ -78,11 +44,12 @@ function AD.attackSolarWrath(target)
 	return spellCast, spellName
 end
 
+--[[
 function AD.healNaturesCure(target)
 	local spellName = "Nature's Cure"
 	
 	local debuff = false
-	local debuffList = {"Aqua Bomb", "Shadow Word: Pain", "Corruption", "Drain Life", "Curse of Exhaustion", "Immolate", "Conflagrate", "Dancing Flames", "Withering Flames", "Salve of Toxic Fumes", "Felfire Shock", "Time Lapse", "Subjugate", "Flame Buffet", "Veil of Shadow", "Venom Spit", "Eyes in the Dark", "Curse of Tongues", "Shiver", "Beast's Mark", "Poisoned Spear", "Pustulant Flesh", "Soulbane", "Shadow Word: Agony", "Corrupted Slash", "Touch of Harm", "Unstable Afliction"}
+	local debuffList = {"Aqua Bomb", "Shadow Word: Pain", "Corruption", "Drain Life", "Curse of Exhaustion", "Immolate", "Conflagrate", "Dancing Flames", "Withering Flames", "Salve of Toxic Fumes", "Felfire Shock", "Time Lapse", "Subjugate", "Flame Buffet", "Veil of Shadow", "Venom Spit", "Eyes in the Dark", "Curse of Tongues", "Shiver", "Beast's Mark", "Poisoned Spear", "Pustulant Flesh", "Soulbane", "Shadow Word: Agony", "Corrupted Slash", "Touch of Harm", "Time Stop", "Choking Vines", "Dreadpetal Toxin", "Static Cling", "Unstable Afliction"}
 	
 	for i,v in ipairs(debuffList) do
 		if UnitDebuff(target,v) then debuff = true; break; end;
@@ -90,6 +57,27 @@ function AD.healNaturesCure(target)
 	if UnitDebuff(target,"Unstable Affliction") then debuff = false; end;
 	
 	local spellCast = AD.condBaseHealResto(target, spellName) and debuff and (offCooldown(spellName))
+	
+	return spellCast, spellName
+end
+]]
+
+function AD.healNaturesCure(target)
+	local spellName = "Nature's Cure"
+	local debuff, dispellType
+	local exclusionList = {"Frostbolt"}
+
+	for i = 1,40 do
+		local a,_,_,_,b = UnitDebuff(target,i,true)
+		if not a then break; end;
+		for j,x in ipairs(exclusionList) do
+			if a ~= x then
+				debuff,dispellType = a,b
+			end
+		end
+	end
+
+	spellCast = debuff and (dispellType == "Curse" or dispellType == "Poison" or dispellType == "Magic") and (isFriend(target)) and (offCooldown(spellName)) and (inRange(spellName,target))
 	
 	return spellCast, spellName
 end
@@ -143,7 +131,8 @@ end
 
 function AD.healTranquility(target)
 	local spellName = "Tranquility"
-	local spellCast = ((notDead(target)) and (isUsable(spellName)) and (offCooldown(spellName)) and (apollo.lowHealthCount(.7,"Regrowth") >= 3))
+	local triggerCount = math.ceil(GetNumGroupMembers()/2)
+	local spellCast = ((notDead(target)) and (isUsable(spellName)) and (offCooldown(spellName)) and (apollo.lowHealthCount(.7,"Regrowth") >= triggerCount) and (GetNumGroupMembers() >= 3))
 	
 	return spellCast, spellName
 end
@@ -222,4 +211,53 @@ function AD.attackTigersFury(target)
 	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange("shred",target)) and (isUsable(spellName)) and ((getEnergy() < 30) or (not unitBuff))
 	
 	return spellCast, spellName
+end
+
+local function travelIndoors(target)
+	local spellName = "Cat Form"
+	if moveTime == nil then local moveTime; end;
+	local shapeshiftForm = GetShapeshiftForm()
+	
+	if not isMoving() or shapeshiftForm == 2 or shapeshiftForm == 3 then moveTime = GetTime(); end;
+	local spellCast = (moveTime + 2 <= GetTime()) and (shapeshiftForm ~= 2 and shapeshiftForm ~= 3) and (not IsMounted())
+	
+	return spellCast, spellName
+end
+
+function AD.restorationSkillRotation()
+	local skillRotation = {
+		AD.healNaturesCure,
+		AD.healRenewal,
+		apollo.healHealthstone,
+		AD.healSwiftmend,
+		AD.healTranquility,
+		AD.healWildGrowth,
+		AD.healLifeBloom,
+		AD.healRegrowth,
+		AD.healRejuvenation,
+		AD.healHealingTouch,
+		apollo.buffWhispersOfInsanity,
+		AD.attackSolarWrath,
+		travelIndoors,
+	}
+	return skillRotation
+end
+
+function AD.feralSkillRotation()
+	local skillRotation = {
+		AD.healRenewal,
+		AD.healPredatorySwiftness,
+		apollo.healHealthstone,
+		AD.attackSkullBash,
+		AD.aoeThrash,
+		AD.aoeSwipe,
+		AD.attackRip,
+		AD.attackRake,
+		AD.attackShred,
+		AD.attackFerociousBite,
+		AD.attackTigersFury,
+		apollo.buffWhispersOfInsanity,
+	}
+
+	return skillRotation
 end

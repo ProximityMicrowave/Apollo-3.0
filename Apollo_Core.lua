@@ -1,26 +1,34 @@
 apollo = {}
 apollo.druid = {}
+apollo.monk = {}
 apollo.groupNames = {}
 apollo.aoeToggle = false
+apollo.pauseToggle = false
 
 local frame = CreateFrame("FRAME");
 frame:RegisterEvent("PLAYER_ENTERING_WORLD");
 frame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED");
-frame:RegisterEvent("GROUP_ROSTER_UPDATE")
-frame:RegisterEvent("PLAYER_REGEN_ENABLED")
-function frame:OnEvent(event, arg1)	
-	apollo.skillRotation = {}
-	apollo.getPlayerRotation()
-	apollo.assignKeybindings()
-	
+frame:RegisterEvent("GROUP_ROSTER_UPDATE");
+--frame:RegisterEvent("PLAYER_REGEN_ENABLED");
+function frame:OnEvent(event, arg1)
+	apollo.rebindkeys = true
+--	apollo.getPlayerRotation()
+--	apollo.assignKeybindings()
 end
 frame:SetScript("OnEvent", frame.OnEvent);
 
 function apollo_OnUpdate(self, elapsed)
 	local r, g, b, target, ability
+	if apollo.rebindkeys then
+		apollo.getPlayerRotation()
+		apollo.assignKeybindings()
+		apollo.rebindkeys = false
+	end
 	
-	ability, target = apollo.skillController()
-	target = apollo.targetController(target)
+	if not apollo.pauseAddon() then 
+		ability, target = apollo.skillController()
+		target = apollo.targetController(target)
+	end
 	
 	local a, t = ability, target
 	
@@ -53,15 +61,18 @@ function apollo.targetController(target)
 end
 
 function apollo.getPlayerRotation()
+	if InCombatLockdown() then return; end;
 	local playerClass = UnitClass("player")
 	local playerSpec = select(2,GetSpecializationInfo(GetSpecialization()))
 	
+	apollo.skillRotation = {}
 	if playerClass == "Druid" and playerSpec == "Restoration" then apollo.skillRotation = apollo.druid.restorationSkillRotation(); end;
 	if playerClass == "Druid" and playerSpec == "Feral" then apollo.skillRotation = apollo.druid.feralSkillRotation(); end;
+	if playerClass == "Monk" and playerSpec == "Windwalker" then apollo.skillRotation = apollo.monk.windwalkerSkillRotation(); end;
 end
 
 function apollo.assignKeybindings()
-	if InCombatLockdown() then return print("Error: Keyrebinding Failed"); end;
+	if InCombatLockdown() then return end;
 	local groupType, offset
 	
 	if IsInRaid() == true then 
@@ -94,11 +105,35 @@ function apollo.assignKeybindings()
 		local skillName = select(2, skillRotation[i]("player"))
 		if not _G[btnName] then btn = CreateFrame("Button", btnName, UIParent, "SecureActionButtonTemplate") else btn = _G[btnName]; end;
 		btn:SetAttribute("type", "macro")
-		btn:SetAttribute("macrotext", "/use [nochanneling,@focus]"..skillName)
+		btn:SetAttribute("macrotext", "/use [nochanneling,nocursor,@focus]"..skillName)
 		SetBinding(apollo.abilityKeybinding[i])
 		SetBindingClick(apollo.abilityKeybinding[i], btnName)
 	end
 	
+end
+
+function apollo.pauseAddon()
+	local pauseSpells = {145205}
+	local eating = {"Refreshment", "Drink", "Food"}
+	
+	for i,v in ipairs(pauseSpells) do
+		if IsCurrentSpell(v) then return true; end;
+	end
+	
+	for i,v in ipairs(eating) do
+		if UnitBuff("player",v) then return true; end;
+	end
+	
+	if ChatFrame1EditBox:IsVisible() then return true; end;
+	if LootFrame:IsVisible() then return true; end;
+	if apollo.pauseToggle then return true; end;
+	
+	return false
+end
+
+function apollo.pauseButton()
+	apollo.pauseToggle = not apollo.pauseToggle
+	if not apollo.pauseToggle then print("Apollo is ENABLED") else print("Apollo is DISABLED"); end;
 end
 
 function apollo.sortPriority()
@@ -187,6 +222,14 @@ function apollo.aoeMode()
 	if apollo.aoeToggle then print("AoE Mode: ACTIVE") else print("AoE Mode: INACTIVE"); end;
 end
 
+function apollo.affectingCombat(target)
+	return UnitAffectingCombat(target) or false
+end
+
+function apollo.isMoving()
+	if GetUnitSpeed("player") == 0 then return false else return true; end;
+end
+
 function apollo.lowHealthCount(health, spellName)
 	--if the input is between 0 and 1 the function will read it as a percentage, and check how many in the group have less than the input in percentage health.
 	--if the input is greater than 1 the function will read it as a raw value and return how many in the group have less than the input value in raw health.
@@ -217,7 +260,18 @@ function apollo.healHealthstone(target)
 	local cooldown = select(2,GetItemCooldown(5512))
 	local count = GetItemCount(5512)
 	
-	local spellCast = (apollo.notDead(target)) and (UnitIsUnit("player",target)) and (cooldown < 2) and (count > 0) and (apollo.unitHealthPct(target) < .7)
+	local spellCast = (apollo.notDead(target)) and (UnitIsUnit("player",target)) and (cooldown < 2) and (count > 0) and (apollo.unitHealthPct("player") < .7)
+	
+	return spellCast, spellName
+end
+
+function apollo.buffWhispersOfInsanity(target)
+	local spellName = "Oralius' Whispering Crystal"
+	local cooldown = select(2,GetItemCooldown(118922))
+	local whispersOfInsanity = UnitBuff("player","Whispers of Insanity")
+	local count = GetItemCount(118922)
+	
+	local spellCast = (apollo.notDead(target)) and (UnitIsUnit("player",target)) and (cooldown < 2) and (count > 0) and (not whispersOfInsanity)
 	
 	return spellCast, spellName
 end

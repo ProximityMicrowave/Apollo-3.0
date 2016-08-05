@@ -11,3 +11,4 @@ Apollo_keybindings.lua
 Display.xml
 
 Apollo_druidModule.lua
+Apollo_monkModule.lua
