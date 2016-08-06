@@ -18,7 +18,7 @@ local function getChi()
 end
 
 local function attackBasicCondition(spellName, target)
-	return (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (affectingCombat(target))
+	return (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (affectingCombat(target)) and (offCooldown(spellName))
 end
 
 local function healBasicCondition(spellName, target)
@@ -46,11 +46,19 @@ local function healEffuse(target)
 	return spellCast, spellName
 end
 
+local function attackRisingSunKick(target)
+	local spellName = "Rising Sun Kick"
+	local spellCast = attackBasicCondition(spellName, target)
+	
+	return spellCast, spellName
+end
+
 function AM.windwalkerSkillRotation()
 	local skillRotation = {
 		apollo.healHealthstone,
 		healEffuse,
 		attackTigerPalm,
+		attackRisingSunKick,
 		attackBlackoutKick,
 	}
 	return skillRotation
