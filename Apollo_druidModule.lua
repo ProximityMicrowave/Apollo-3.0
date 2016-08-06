@@ -12,6 +12,7 @@ local getComboPoints = apollo.getComboPoints
 local canInterupt = apollo.canInterupt
 local lowMan = apollo.lowMana
 local isMoving = apollo.isMoving
+local affectingCombat = apollo.affectingCombat
 
 function AD.condBaseHealResto(target, spellName)
 	return (isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (not lowMana)
@@ -219,7 +220,15 @@ local function travelIndoors(target)
 	local shapeshiftForm = GetShapeshiftForm()
 	
 	if not isMoving() or shapeshiftForm == 2 or shapeshiftForm == 3 then moveTime = GetTime(); end;
-	local spellCast = (moveTime + 2 <= GetTime()) and (shapeshiftForm ~= 2 and shapeshiftForm ~= 3) and (not IsMounted())
+	local spellCast = (moveTime + 2 <= GetTime()) and (shapeshiftForm ~= 2 and shapeshiftForm ~= 3) and (not IsMounted()) and (not IsResting())
+	
+	return spellCast, spellName
+end
+
+local function attackCatForm(target)
+	local spellName = "Cat Form"
+	local shapeshiftForm = GetShapeshiftForm()
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (isUsable(spellName)) and (shapeshiftForm ~= 2) and (affectingCombat(target))
 	
 	return spellCast, spellName
 end
@@ -246,6 +255,7 @@ end
 function AD.feralSkillRotation()
 	local skillRotation = {
 		AD.healRenewal,
+		attackCatForm,
 		AD.healPredatorySwiftness,
 		apollo.healHealthstone,
 		AD.attackSkullBash,
@@ -257,6 +267,7 @@ function AD.feralSkillRotation()
 		AD.attackFerociousBite,
 		AD.attackTigersFury,
 		apollo.buffWhispersOfInsanity,
+		travelIndoors,
 	}
 
 	return skillRotation
