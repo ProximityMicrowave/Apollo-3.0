@@ -9,13 +9,23 @@ local frame = CreateFrame("FRAME");
 frame:RegisterEvent("PLAYER_ENTERING_WORLD");
 frame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED");
 frame:RegisterEvent("GROUP_ROSTER_UPDATE");
---frame:RegisterEvent("PLAYER_REGEN_ENABLED");
+--frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 function frame:OnEvent(event, arg1)
-	apollo.rebindkeys = true
---	apollo.getPlayerRotation()
---	apollo.assignKeybindings()
+--	if event ~= "COMBAT_LOG_EVENT_UNFILTERED" then
+		apollo.rebindkeys = true
+--	end
+	
+--	if (event == "COMBAT_LOG_EVENT_UNFILTERED") then
+--		if (type == "SPELL_HEAL") then
+--		local spellId, spellName, spellSchool, amount, overkill, school, resisted, blocked, absorbed, critical, glancing, crushing = select(12, ...)
+--			if (spellName == "Healing Touch") then
+--				apollo.druid.predatorySwiftnessCastTime = GetTime()
+--			end
+--		end
+--	end
 end
 frame:SetScript("OnEvent", frame.OnEvent);
+
 
 function apollo_OnUpdate(self, elapsed)
 	local r, g, b, target, ability
@@ -83,11 +93,12 @@ function apollo.assignKeybindings()
 		offset = -1
 	end
 
-	for i=1,41 do
+	for i=1,42 do
 		local btn
 		local target = groupType..(i + offset)
 		if target == "party0" then target = "player"; end;
 		if i == 41 then target = "target"; end;
+--		if i == 42 then target = "targettarget"; end;
 		apollo.groupNames[i] = target
 		
 		local btnName = "apolloTarget"..i

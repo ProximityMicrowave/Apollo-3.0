@@ -45,24 +45,6 @@ function AD.attackSolarWrath(target)
 	return spellCast, spellName
 end
 
---[[
-function AD.healNaturesCure(target)
-	local spellName = "Nature's Cure"
-	
-	local debuff = false
-	local debuffList = {"Aqua Bomb", "Shadow Word: Pain", "Corruption", "Drain Life", "Curse of Exhaustion", "Immolate", "Conflagrate", "Dancing Flames", "Withering Flames", "Salve of Toxic Fumes", "Felfire Shock", "Time Lapse", "Subjugate", "Flame Buffet", "Veil of Shadow", "Venom Spit", "Eyes in the Dark", "Curse of Tongues", "Shiver", "Beast's Mark", "Poisoned Spear", "Pustulant Flesh", "Soulbane", "Shadow Word: Agony", "Corrupted Slash", "Touch of Harm", "Time Stop", "Choking Vines", "Dreadpetal Toxin", "Static Cling", "Unstable Afliction"}
-	
-	for i,v in ipairs(debuffList) do
-		if UnitDebuff(target,v) then debuff = true; break; end;
-	end
-	if UnitDebuff(target,"Unstable Affliction") then debuff = false; end;
-	
-	local spellCast = AD.condBaseHealResto(target, spellName) and debuff and (offCooldown(spellName))
-	
-	return spellCast, spellName
-end
-]]
-
 function AD.healNaturesCure(target)
 	local spellName = "Nature's Cure"
 	local debuff, dispellType
@@ -194,7 +176,9 @@ end
 function AD.healPredatorySwiftness(target)
 	local spellName = "Healing Touch"
 	local unitBuff = UnitBuff("player","Predatory Swiftness")
-	local spellCast = (isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and unitBuff
+
+	
+	local spellCast = (isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and unitBuff --and (AD.predatorySwiftnessCastTime < GetTime() - 2)
 	
 	return spellCast, spellName
 end
@@ -233,8 +217,16 @@ local function attackCatForm(target)
 	return spellCast, spellName
 end
 
+local function healRebirth(target)
+	local spellName = "Rebirth"
+	local spellCast = (isFriend(target)) and (not notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (offCooldown(spellName))
+	
+	return spellCast, spellName
+end
+
 function AD.restorationSkillRotation()
 	local skillRotation = {
+		healRebirth,
 		AD.healNaturesCure,
 		AD.healRenewal,
 		apollo.healHealthstone,
@@ -247,7 +239,7 @@ function AD.restorationSkillRotation()
 		AD.healHealingTouch,
 		apollo.buffWhispersOfInsanity,
 		AD.attackSolarWrath,
-		travelIndoors,
+--		travelIndoors,
 	}
 	return skillRotation
 end
@@ -261,13 +253,13 @@ function AD.feralSkillRotation()
 		AD.attackSkullBash,
 		AD.aoeThrash,
 		AD.aoeSwipe,
-		AD.attackRip,
 		AD.attackRake,
 		AD.attackShred,
+		AD.attackRip,
 		AD.attackFerociousBite,
 		AD.attackTigersFury,
 		apollo.buffWhispersOfInsanity,
-		travelIndoors,
+--		travelIndoors,
 	}
 
 	return skillRotation
