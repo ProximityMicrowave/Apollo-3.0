@@ -1,6 +1,7 @@
 apollo = {}
 apollo.druid = {}
 apollo.monk = {}
+apollo.demonHunter = {}
 apollo.groupNames = {}
 apollo.aoeToggle = false
 apollo.pauseToggle = false
@@ -79,6 +80,7 @@ function apollo.getPlayerRotation()
 	if playerClass == "Druid" and playerSpec == "Restoration" then apollo.skillRotation = apollo.druid.restorationSkillRotation(); end;
 	if playerClass == "Druid" and playerSpec == "Feral" then apollo.skillRotation = apollo.druid.feralSkillRotation(); end;
 	if playerClass == "Monk" and playerSpec == "Windwalker" then apollo.skillRotation = apollo.monk.windwalkerSkillRotation(); end;
+	if playerClass == "Demon Hunter" and playerSpec == "Havoc" then apollo.skillRotation = apollo.demonHunter.havocSkillRotation(); end;
 end
 
 function apollo.assignKeybindings()
@@ -98,7 +100,6 @@ function apollo.assignKeybindings()
 		local target = groupType..(i + offset)
 		if target == "party0" then target = "player"; end;
 		if i == 41 then target = "target"; end;
---		if i == 42 then target = "targettarget"; end;
 		apollo.groupNames[i] = target
 		
 		local btnName = "apolloTarget"..i
@@ -116,7 +117,13 @@ function apollo.assignKeybindings()
 		local skillName = select(2, skillRotation[i]("player"))
 		if not _G[btnName] then btn = CreateFrame("Button", btnName, UIParent, "SecureActionButtonTemplate") else btn = _G[btnName]; end;
 		btn:SetAttribute("type", "macro")
-		btn:SetAttribute("macrotext", "/use [nochanneling,nocursor,@focus]"..skillName)
+		if skillName == "Healing Touch" then 
+			btn:SetAttribute("macrotext", "/console autounshift 0\n/use [nochanneling,nocursor,@focus]"..skillName.."\n/console autounshift 1")
+		elseif skillName == "Swiftmend" then
+			btn:SetAttribute("macrotext", "/stopcasting\n/use [nochanneling,nocursor,@focus]"..skillName)
+		else
+			btn:SetAttribute("macrotext", "/use [nochanneling,nocursor,@focus]"..skillName)
+		end
 		SetBinding(apollo.abilityKeybinding[i])
 		SetBindingClick(apollo.abilityKeybinding[i], btnName)
 	end
@@ -223,6 +230,10 @@ function apollo.getComboPoints()
 	return UnitPower("player",4)
 end
 
+function apollo.getFury()
+	return UnitPower("player",17)
+end
+
 function apollo.canInterupt(target)
 	local name, nameSubtext, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(target)
 	if name and (not notInterruptible) then return true else return false; end;
@@ -239,6 +250,10 @@ end
 
 function apollo.isMoving()
 	if GetUnitSpeed("player") == 0 then return false else return true; end;
+end
+
+function apollo.isTank(target)
+	if ((UnitGroupRolesAssigned(target) == "TANK" or GetUnitName(target) == "Oto the Protector")) then return true else return false; end;
 end
 
 function apollo.lowHealthCount(health, spellName)
@@ -271,7 +286,17 @@ function apollo.healHealthstone(target)
 	local cooldown = select(2,GetItemCooldown(5512))
 	local count = GetItemCount(5512)
 	
-	local spellCast = (apollo.notDead(target)) and (UnitIsUnit("player",target)) and (cooldown < 2) and (count > 0) and (apollo.unitHealthPct("player") < .7)
+	local spellCast = (apollo.notDead(target)) and (UnitIsUnit("player",target)) and (cooldown < 2) and (count > 0) and (apollo.unitHealthPct("player") < .6)
+	
+	return spellCast, spellName
+end
+
+function apollo.healEternalAmuletOfTheRedeemed(target)
+	local spellName = "Eternal Amulet of the Redeemed"
+	local cooldown = select(2,GetItemCooldown(122663))
+	local count = GetItemCount(122663)
+	
+	local spellCast = (apollo.notDead(target)) and (UnitIsUnit("player",target)) and (cooldown < 2) and (count > 0) and (apollo.unitHealthPct("player") < .6) and IsEquippedItem(122663)
 	
 	return spellCast, spellName
 end
@@ -279,10 +304,15 @@ end
 function apollo.buffWhispersOfInsanity(target)
 	local spellName = "Oralius' Whispering Crystal"
 	local cooldown = select(2,GetItemCooldown(118922))
-	local whispersOfInsanity = UnitBuff("player","Whispers of Insanity")
 	local count = GetItemCount(118922)
+	local elixirBuff
+	local elixirBuffList = {"Whispers of Insanity", "Draenic Intellect Flask"}
+	for i,v in ipairs(elixirBuffList) do
+		elixirBuff = UnitBuff("player",v)
+		if elixirBuff then break; end;
+	end
 	
-	local spellCast = (apollo.notDead(target)) and (UnitIsUnit("player",target)) and (cooldown < 2) and (count > 0) and (not whispersOfInsanity)
+	local spellCast = (apollo.notDead(target)) and (UnitIsUnit("player",target)) and (cooldown < 2) and (count > 0) and (not elixirBuff)
 	
 	return spellCast, spellName
 end

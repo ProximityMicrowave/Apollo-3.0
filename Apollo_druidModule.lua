@@ -13,24 +13,64 @@ local canInterupt = apollo.canInterupt
 local lowMan = apollo.lowMana
 local isMoving = apollo.isMoving
 local affectingCombat = apollo.affectingCombat
+local isTank = apollo.isTank
 
-function AD.condBaseHealResto(target, spellName)
+local function condBaseHealResto(target, spellName)
 	return (isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (not lowMana)
 end
 
-function AD.healHealingTouch(target)
+local function condBaseAttackFeral(target, spellName)
+	return (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName))
+end
+
+local function getShapeshiftForm()
+	local shapeshiftForm
+	if GetShapeshiftForm() == 0 then shapeshiftForm = "Humanoid" else shapeshiftForm = select(2,GetShapeshiftFormInfo(GetShapeshiftForm())) end;
+	return shapeshiftForm
+end
+
+local function tankHealRejuvenation(target)
+	local spellName = "Rejuvenation"
+	local unitBuff
+	if select(4,GetTalentInfo(6,3,1)) then unitBuff = UnitBuff(target,"Rejuvenation (Germination)") and UnitBuff(target,"Rejuvenation") and true
+	else unitBuff = UnitBuff(target,"Rejuvenation"); end
+	local abundanceStacks = select(4,UnitBuff("player","Abundance")) or 0
+	
+	local spellCast = condBaseHealResto(target, spellName) and (not unitBuff) and (unitHealthPct(target) < .9) and isTank(target) and hasThreat(target)
+
+	return spellCast, spellName
+end
+
+local function tankHealIronbark(target)
+	local spellName = "Ironbark"
+	
+	local spellCast = condBaseHealResto(target, spellName) and (unitHealthPct(target) < .7) and isTank(target) and hasThreat(target) and offCooldown(spellName)
+
+	return spellCast, spellName
+end
+
+local function healHealingTouch(target)
 	local spellName = "Healing Touch"
+	if UnitLevel("player") < 26 then spellName = "Regrowth"; end;
 	local heal = (GetSpellBonusHealing() * 4)
-	local spellCast = AD.condBaseHealResto(target,spellName) and (missingHealth(target) > heal) and (not isMoving())
+	local spellCast = condBaseHealResto(target,spellName) and (unitHealthPct(target) < .9) and (not isMoving())
 	
 	return spellCast, spellName
 end
 
-function AD.healRejuvenation(target)
+local function healTankHealingTouch(target)
+	local spellName = "Healing Touch"
+	if UnitLevel("player") < 26 then spellName = "Regrowth"; end;
+	local spellCast = condBaseHealResto(target,spellName) and (unitHealthPct(target) < .7) and (not isMoving()) and isTank(target)
+	
+	return spellCast, spellName
+end
+
+local function healRejuvenation(target)
 	local spellName = "Rejuvenation"
 	local unitBuff
 	if select(4,GetTalentInfo(6,3,1)) then unitBuff = UnitBuff(target,"Rejuvenation (Germination)") and UnitBuff(target,"Rejuvenation") and true
-	else unitBuff = UnitBuff(spellTarget,"Rejuvenation"); end
+	else unitBuff = UnitBuff(target,"Rejuvenation"); end
 	local abundanceStacks = select(4,UnitBuff("player","Abundance")) or 0
 	
 	local spellCast = (isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (not unitBuff) and (unitHealthPct(target) < .9) and (abundanceStacks < 10)
@@ -38,24 +78,61 @@ function AD.healRejuvenation(target)
 	return spellCast, spellName
 end
 
-function AD.attackSolarWrath(target)
+local function attackSolarWrath(target)
 	local spellName = "Solar Wrath"
 	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName))
 	
 	return spellCast, spellName
 end
 
-function AD.healNaturesCure(target)
+local function attackStarsurge(target)
+	local spellName = "Starsurge"
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (offCooldown(spellName))
+	
+	return spellCast, spellName
+end
+
+local function attackLunarStrike(target)
+	local spellName = "Lunar Strike"
+	local unitBuff = UnitBuff("player","Lunar Empowerment")
+	AD.lastLunarStrike = AD.lastLunarStrike or 0
+	if UnitCastingInfo("player") == "Lunar Strike" then AD.lastLunarStrike = GetTime(); end;
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and unitBuff and (AD.lastLunarStrike < GetTime() - 1)
+	
+	return spellCast, spellName
+end
+
+local function attackMoonfire(target)
+	local spellName = "Moonfire"
+	local unitDebuff = UnitDebuff(target,"Moonfire")
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (not unitDebuff)
+	
+	return spellCast, spellName
+end
+
+local function attackLunarInspiration(target)
+	local spellName = "Moonfire"
+	local unitDebuff = UnitDebuff(target,"Moonfire")
+	local talent = select(4,GetTalentInfo(1,3,1))
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (not unitDebuff) and (not IsStealthed()) and talent
+	
+	return spellCast, spellName
+end
+
+local function healNaturesCure(target)
 	local spellName = "Nature's Cure"
+	if UnitLevel("player") < 18 then return false, spellName; end;
 	local debuff, dispellType
-	local exclusionList = {"Frostbolt"}
+	local exclusionList = {"Frostbolt", "Thunderclap", "Chilled"}
 
 	for i = 1,40 do
 		local a,_,_,_,b = UnitDebuff(target,i,true)
 		if not a then break; end;
 		for j,x in ipairs(exclusionList) do
-			if a ~= x then
-				debuff,dispellType = a,b
+			if a == x then
+				debuff = false; break;
+			else 
+				debuff, dispellType = a,b
 			end
 		end
 	end
@@ -65,7 +142,23 @@ function AD.healNaturesCure(target)
 	return spellCast, spellName
 end
 
-function AD.healRegrowth(target)
+local function healTankRegrowth(target)
+	local spellName = "Regrowth"
+	local clearcasting = UnitBuff("player","Clearcasting")
+	local currentSpeed = GetUnitSpeed("player")
+	local regrowthBuff = UnitBuff(target, "Regrowth")
+	
+	AD.lastRegrowth = AD.lastRegrowth or 0
+	if UnitCastingInfo("player") == "Regrowth" then AD.lastRegrowth = GetTime(); end;
+	
+	local conditionSet1 = condBaseHealResto(target, spellName) and (currentSpeed == 0) and (AD.lastRegrowth < GetTime() - 1)
+	local conditionSet2 = (hasThreat(target)) and (isTank(target)) and (unitHealthPct(target) < .9) and ((not regrowthBuff) or (clearcasting))
+	local spellCast = conditionSet1 and conditionSet2
+	
+	return spellCast, spellName
+end
+
+local function healGroupRegrowth(target)
 	local spellName = "Regrowth"
 	local clearcasting = UnitBuff("player","Clearcasting")
 	local currentSpeed = GetUnitSpeed("player")
@@ -73,15 +166,14 @@ function AD.healRegrowth(target)
 	AD.lastRegrowth = AD.lastRegrowth or 0
 	if UnitCastingInfo("player") == "Regrowth" then AD.lastRegrowth = GetTime(); end;
 	
-	local conditionSet1 = ((notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and isFriend(target))
-	local conditionSet2 = ((unitHealthPct(target) < 1) and (currentSpeed == 0) and (AD.lastRegrowth < GetTime() - 1) and (clearcasting))
-	local conditionSet3 = ((hasThreat(target)) and (unitHealthPct(target) < .7) and (not IsInRaid()))
-	local spellCast = conditionSet1 and (conditionSet2 or conditionSet3)
+	local conditionSet1 = condBaseHealResto(target, spellName) and (currentSpeed == 0) and (AD.lastRegrowth < GetTime() - 1)
+	local conditionSet2 = ((unitHealthPct(target) < .9) and (clearcasting))
+	local spellCast = conditionSet1 and conditionSet2
 	
 	return spellCast, spellName
 end
 
-function AD.healLifeBloom(target)
+local function healLifeBloom(target)
 	local spellName = "Lifebloom"
 	local unitBuff = false
 	for i,v in ipairs(apollo.groupNames) do
@@ -91,28 +183,28 @@ function AD.healLifeBloom(target)
 		end
 	end
 	
-	local conditionSet1 = AD.condBaseHealResto(target, spellName)
-	local conditionSet2 = (hasThreat(target)) and (not unitBuff)
+	local conditionSet1 = condBaseHealResto(target, spellName)
+	local conditionSet2 = (hasThreat(target)) and (not unitBuff) and isTank(target)
 	local spellCast = conditionSet1 and conditionSet2
 	
 	return spellCast, spellName
 end
 
-function AD.healRenewal(target)
+local function healRenewal(target)
 	local spellName = "Renewal"
 	local spellCast = (notDead(target)) and (isUsable(spellName)) and (UnitIsUnit("player",target)) and (offCooldown(spellName)) and (unitHealthPct(target) < .7)
 	
 	return spellCast, spellName
 end
 
-function AD.healSwiftmend(target)
+local function healSwiftmend(target)
 	local spellName = "Swiftmend"
-	local spellCast = (AD.condBaseHealResto(target, spellName) and (offCooldown(spellName)) and (unitHealthPct(target) < .3))
+	local spellCast = (condBaseHealResto(target, spellName) and (offCooldown(spellName)) and (UnitHealth(target) / UnitHealthMax(target) < .4))
 	
 	return spellCast, spellName
 end
 
-function AD.healTranquility(target)
+local function healTranquility(target)
 	local spellName = "Tranquility"
 	local triggerCount = math.ceil(GetNumGroupMembers()/2)
 	local spellCast = ((notDead(target)) and (isUsable(spellName)) and (offCooldown(spellName)) and (apollo.lowHealthCount(.7,"Regrowth") >= triggerCount) and (GetNumGroupMembers() >= 3))
@@ -120,125 +212,160 @@ function AD.healTranquility(target)
 	return spellCast, spellName
 end
 
-function AD.healWildGrowth(target)
+local function healWildGrowth(target)
 	local spellName = "Wild Growth"
 	local spellCast = ((notDead(target)) and (isUsable(spellName)) and (offCooldown(spellName)) and (apollo.lowHealthCount(.7,"Regrowth") >= 3))
 	
 	return spellCast, spellName
 end
 
-function AD.attackShred(target)
+local function attackShred(target)
 	local spellName = "Shred"
-	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (getEnergy() > 65)
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (getEnergy() >= 50)
 	
 	return spellCast, spellName
 end
 
-function AD.attackRake(target)
+local function attackRake(target)
 	local spellName = "Rake"
 	local unitDebuff = UnitDebuff("target","Rake")
-	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (getEnergy() > 65) and (not unitDebuff)
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (not unitDebuff) and (getEnergy() >= 50)
 	
 	return spellCast, spellName
 end
 
-function AD.aoeThrash(target)
+local function aoeThrash(target)
 	local spellName = "Thrash"
 	local unitDebuff = UnitDebuff("target","Thrash")
-	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange("Shred",target)) and (isUsable(spellName)) and (getEnergy() > 65) and (not unitDebuff) and (apollo.aoeToggle)
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange("Shred",target)) and (isUsable(spellName)) and (getEnergy() >= 50) and (not unitDebuff) and (apollo.aoeToggle)
 	
 	return spellCast, spellName
 end
 
-function AD.aoeSwipe(target)
+local function aoeSwipe(target)
 	local spellName = "Swipe"
 	local unitDebuff = UnitDebuff("target","Thrash")
-	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange("Shred",target)) and (isUsable(spellName)) and (unitDebuff) and (apollo.aoeToggle)
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange("Shred",target)) and (isUsable(spellName)) and (getEnergy() >= 50) and (unitDebuff) and (apollo.aoeToggle)
 	
 	return spellCast, spellName
 end
 
-function AD.attackFerociousBite(target)
+local function attackFerociousBite(target)
 	local spellName = "Ferocious Bite"
-	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (getComboPoints() == 5)
+	local base, posBuff, negBuff = UnitAttackPower("player")
+	local effectiveAP = base + posBuff + negBuff;
+	local spellCast = condBaseAttackFeral(target, spellName) and ((getComboPoints() == 5) or UnitHealth("focus") < effectiveAP * 5.8 * getComboPoints() / 5) and (not IsStealthed()) and (getEnergy() >= 30)
 	
 	return spellCast, spellName
 end
 
-function AD.attackRip(target)
+local function attackRip(target)
 	local spellName = "Rip"
 	local unitDebuff = UnitDebuff("target","Rip")
-	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (getComboPoints() == 5) and (not unitDebuff)
+	local base, posBuff, negBuff = UnitAttackPower("player")
+	local effectiveAP = base + posBuff + negBuff;
+	local ripDamage = effectiveAP * 1.68 * 5
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (getComboPoints() == 5) and (not unitDebuff) and (not IsStealthed()) and (UnitHealth(target) > ripDamage)
 	
 	return spellCast, spellName
 end
 
-function AD.healPredatorySwiftness(target)
+local function healPredatorySwiftness(target)
 	local spellName = "Healing Touch"
 	local unitBuff = UnitBuff("player","Predatory Swiftness")
 
 	
-	local spellCast = (isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and unitBuff --and (AD.predatorySwiftnessCastTime < GetTime() - 2)
+	local spellCast = (isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and unitBuff and (unitHealthPct(target) < .9)
 	
 	return spellCast, spellName
 end
 
-function AD.attackSkullBash(target)
+local function attackSkullBash(target)
 	local spellName = "Skull Bash"
 	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (offCooldown(spellName)) and (canInterupt(target))
 	
 	return spellCast, spellName
 end
 
-function AD.attackTigersFury(target)
+local function attackTigersFury(target)
 	local spellName = "Tiger's Fury"
 	local unitBuff = UnitBuff("player","Clearcasting")
-	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange("shred",target)) and (isUsable(spellName)) and ((getEnergy() < 30) or (not unitBuff))
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange("shred",target)) and (isUsable(spellName)) and (getEnergy() < 40) and (not unitBuff) and (offCooldown("Shred"))
 	
 	return spellCast, spellName
 end
 
+--[[
 local function travelIndoors(target)
 	local spellName = "Cat Form"
 	if moveTime == nil then local moveTime; end;
-	local shapeshiftForm = GetShapeshiftForm()
+	local shapeshiftForm = select(2,GetShapeshiftFormInfo(GetShapeshiftForm()))
 	
 	if not isMoving() or shapeshiftForm == 2 or shapeshiftForm == 3 then moveTime = GetTime(); end;
 	local spellCast = (moveTime + 2 <= GetTime()) and (shapeshiftForm ~= 2 and shapeshiftForm ~= 3) and (not IsMounted()) and (not IsResting())
 	
 	return spellCast, spellName
 end
+]]
 
 local function attackCatForm(target)
 	local spellName = "Cat Form"
-	local shapeshiftForm = GetShapeshiftForm()
-	local spellCast = (not isFriend(target)) and (notDead(target)) and (isUsable(spellName)) and (shapeshiftForm ~= 2) and (affectingCombat(target))
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (isUsable(spellName)) and (getShapeshiftForm() ~= "Cat Form") and (inRange("shred",target))
+	
+	return spellCast, spellName
+end
+
+local function attackMoonkinForm(target)
+	local spellName = "Moonkin Form"
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (isUsable(spellName)) and (getShapeshiftForm() ~= "Moonkin Form") and (inRange("Moonfire",target)) and (not IsInGroup())
 	
 	return spellCast, spellName
 end
 
 local function healRebirth(target)
 	local spellName = "Rebirth"
-	local spellCast = (isFriend(target)) and (not notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (offCooldown(spellName))
+	local spellCast = (isFriend(target)) and (not notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (offCooldown(spellName)) and isTank(target)
+	
+	return spellCast, spellName
+end
+
+local function healBarkSkin(target)
+	local spellName = "Barkskin"
+	local spellCast = (notDead(target)) and (isUsable(spellName)) and (UnitIsUnit("player",target)) and (offCooldown(spellName)) and (unitHealthPct(target) < .7)
 	
 	return spellCast, spellName
 end
 
 function AD.restorationSkillRotation()
 	local skillRotation = {
+		--EMERGENCY SKILLS--
 		healRebirth,
-		AD.healNaturesCure,
-		AD.healRenewal,
+		healNaturesCure,
+		healRenewal,
+		apollo.healEternalAmuletOfTheRedeemed,
 		apollo.healHealthstone,
-		AD.healSwiftmend,
-		AD.healTranquility,
-		AD.healWildGrowth,
-		AD.healLifeBloom,
-		AD.healRegrowth,
-		AD.healRejuvenation,
-		AD.healHealingTouch,
+		healBarkSkin,
+		healSwiftmend,
+		--AOE HEALING--
+		healTranquility,
+		healWildGrowth,
+		--TANK HEALING--
+		healLifeBloom,
+		tankHealRejuvenation,
+		healTankRegrowth,
+		tankHealIronbark,
+		healTankHealingTouch,
+		--GROUP HEALING--
+		healGroupRegrowth,
+		healRejuvenation,
+		healHealingTouch,
+		--OTHER ACTIONS--
 		apollo.buffWhispersOfInsanity,
-		AD.attackSolarWrath,
+		attackMoonfire,
+		attackMoonkinForm,
+		attackStarsurge,
+		attackLunarStrike,
+		attackSolarWrath,
 --		travelIndoors,
 	}
 	return skillRotation
@@ -246,18 +373,21 @@ end
 
 function AD.feralSkillRotation()
 	local skillRotation = {
-		AD.healRenewal,
+		healRenewal,
+		apollo.healEternalAmuletOfTheRedeemed,
 		attackCatForm,
-		AD.healPredatorySwiftness,
+		healPredatorySwiftness,
+		healSwiftmend,
 		apollo.healHealthstone,
-		AD.attackSkullBash,
-		AD.aoeThrash,
-		AD.aoeSwipe,
-		AD.attackRake,
-		AD.attackShred,
-		AD.attackRip,
-		AD.attackFerociousBite,
-		AD.attackTigersFury,
+		attackSkullBash,
+		attackLunarInspiration,
+		attackRip,
+		attackFerociousBite,
+		aoeThrash,
+		aoeSwipe,
+		attackRake,
+		attackShred,
+		attackTigersFury,
 		apollo.buffWhispersOfInsanity,
 --		travelIndoors,
 	}
