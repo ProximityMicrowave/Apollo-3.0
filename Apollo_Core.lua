@@ -1,6 +1,7 @@
 apollo = {}
 apollo.druid = {}
 apollo.monk = {}
+apollo.warrior = {}
 apollo.demonHunter = {}
 apollo.groupNames = {}
 apollo.aoeToggle = false
@@ -81,6 +82,8 @@ function apollo.getPlayerRotation()
 	if playerClass == "Druid" and playerSpec == "Feral" then apollo.skillRotation = apollo.druid.feralSkillRotation(); end;
 	if playerClass == "Monk" and playerSpec == "Windwalker" then apollo.skillRotation = apollo.monk.windwalkerSkillRotation(); end;
 	if playerClass == "Demon Hunter" and playerSpec == "Havoc" then apollo.skillRotation = apollo.demonHunter.havocSkillRotation(); end;
+	if playerClass == "Warrior" and playerSpec == "Arms" then apollo.skillRotation = apollo.warrior.armsSkillRotation(); end;
+	if playerClass == "Warrior" and playerSpec == "Protection" then apollo.skillRotation = apollo.warrior.protectionSkillRotation(); end;
 end
 
 function apollo.assignKeybindings()
