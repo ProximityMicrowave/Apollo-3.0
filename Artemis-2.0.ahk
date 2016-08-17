@@ -13,7 +13,14 @@ Loop
 {
 ;	if WinActive("ahk_class".GxWindowClass)
 	CoordMode, Pixel, Screen
-	PixelGetColor, OutputVar, 0, 0, RGB
+	PixelGetColor, Check1, 0, 0, RGB
+	Sleep, 42
+	PixelGetColor, Check2, 0, 0, RGB
+	if Check1 = %Check2%
+	{
+		OutputVar := Check1
+	}
+	
 	if OutputVar = 0x010101
 	{
 		ControlSend,,{Numpad1},World of Warcraft
@@ -66,62 +73,62 @@ Loop
 	}
 	if OutputVar = 0x0B0B0B
 	{
-		ControlSend,,{ctrl down}{Numpad1}{ctrl up},World of Warcraft
+		ControlSend,,{alt down}{a}{alt up},World of Warcraft
 		Sleep, 250
 	}
 	if OutputVar = 0x0C0C0C
 	{
-		ControlSend,,{ctrl down}{Numpad2}{ctrl up},World of Warcraft
+		ControlSend,,{alt down}{b}{alt up},World of Warcraft
 		Sleep, 250
 	}
 	if OutputVar = 0x0D0D0D
 	{
-		ControlSend,,{ctrl down}{Numpad3}{ctrl up},World of Warcraft
+		ControlSend,,{alt down}{c}{alt up},World of Warcraft
 		Sleep, 250
 	}
 	if OutputVar = 0x0E0E0E
 	{
-		ControlSend,,{ctrl down}{Numpad4}{ctrl up},World of Warcraft
+		ControlSend,,{alt down}{d}{alt up},World of Warcraft
 		Sleep, 250
 	}
 	if OutputVar = 0x0F0F0F
 	{
-		ControlSend,,{ctrl down}{Numpad5}{ctrl up},World of Warcraft
+		ControlSend,,{alt down}{e}{alt up},World of Warcraft
 		Sleep, 250
 	}
 	if OutputVar = 0x101010
 	{
-		ControlSend,,{ctrl down}{Numpad6}{ctrl up},World of Warcraft
+		ControlSend,,{alt down}{f}{alt up},World of Warcraft
 		Sleep, 250
 	}
 	if OutputVar = 0x111111
 	{
-		ControlSend,,{ctrl down}{Numpad7}{ctrl up},World of Warcraft
+		ControlSend,,{alt down}{g}{alt up},World of Warcraft
 		Sleep, 250
 	}
 	if OutputVar = 0x121212
 	{
-		ControlSend,,{ctrl down}{Numpad8}{ctrl up},World of Warcraft
+		ControlSend,,{alt down}{h}{alt up},World of Warcraft
 		Sleep, 250
 	}
 	if OutputVar = 0x131313
 	{
-		ControlSend,,{ctrl down}{Numpad9}{ctrl up},World of Warcraft
+		ControlSend,,{alt down}{i}{alt up},World of Warcraft
 		Sleep, 250
 	}
 	if OutputVar = 0x141414
 	{
-		ControlSend,,{ctrl down}{Numpad0}{ctrl up},World of Warcraft
+		ControlSend,,{alt down}{j}{alt up},World of Warcraft
 		Sleep, 250
 	}
 	if OutputVar = 0x151515
 	{
-		ControlSend,,{alt down}{Numpad1}{alt up},World of Warcraft
+		ControlSend,,{alt down}{k}{alt up},World of Warcraft
 		Sleep, 250
 	}
 	if OutputVar = 0x161616
 	{
-		ControlSend,,{alt down}{Numpad2}{alt up},World of Warcraft
+		ControlSend,,{alt down}{l}{alt up},World of Warcraft
 		Sleep, 250
 	}
 	
@@ -332,25 +339,3 @@ Loop
 		Sleep, 250
 	}
 }
-
-;#IfWinActive
-
-;`::
-;Menu, Tray, Icon, %A_ScriptDir%\wowlight.ico,,1
-
-;  soundbeep 
-
-; if resuming from sleep our status flag is set and a second beep is issued 
-
-;  if issleeping 
-  
-;	Menu, Tray, Icon, %A_ScriptDir%\wowdark.ico,,1
-;    soundbeep 
-
-; toogle the status flag 
-
-;  issleeping := !issleeping 
-
-;  pause 
-
-;  return

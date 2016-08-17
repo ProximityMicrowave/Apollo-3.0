@@ -30,7 +30,11 @@ frame:SetScript("OnEvent", frame.OnEvent);
 
 
 function apollo_OnUpdate(self, elapsed)
-	local r, g, b, target, ability
+	apollo.lastRun = apollo.lastRun or 0
+	if apollo.lastRun > GetTime() - .250 then return; end;
+--	print("test")
+	
+	local target, ability
 	if apollo.rebindkeys then
 		apollo.getPlayerRotation()
 		apollo.assignKeybindings()
@@ -46,7 +50,8 @@ function apollo_OnUpdate(self, elapsed)
 	
 	if t then ColorDot:SetColorTexture(t/255,0,0,1); return; end;
 	if a then ColorDot:SetColorTexture(a/255,a/255,a/255,1); return; end;
-		
+	
+	apollo.lastRun = GetTime()
 	ColorDot:SetColorTexture(0,0,0,1)
 end
 

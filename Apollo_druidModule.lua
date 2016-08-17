@@ -342,7 +342,7 @@ function AD.restorationSkillRotation()
 		healRebirth,
 		healNaturesCure,
 		healRenewal,
-		apollo.healEternalAmuletOfTheRedeemed,
+--		apollo.healEternalAmuletOfTheRedeemed,
 		apollo.healHealthstone,
 		healBarkSkin,
 		healSwiftmend,
