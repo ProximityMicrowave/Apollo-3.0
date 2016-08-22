@@ -2,7 +2,7 @@
 ; #Warn  ; Enable warnings to assist with detecting common errors.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-;SetKeyDelay, -1, -1
+SetKeyDelay, -1, -1
 Menu, Tray, Icon, %A_ScriptDir%\wowlight.ico,,1
 #maxthreadsperhotkey 6
 #SingleInstance force
@@ -13,12 +13,19 @@ Loop
 {
 ;	if WinActive("ahk_class".GxWindowClass)
 	CoordMode, Pixel, Screen
-	PixelGetColor, OutputVar, 0, 0, RGB
+	PixelGetColor, Check1, 0, 0, RGB
+	Sleep, 42
+	PixelGetColor, Check2, 0, 0, RGB
+	if Check1 = %Check2%
+	{
+		OutputVar := Check1
+	}
+	
 	if OutputVar = 0x010101
 	{
 		ControlSend,,{Numpad1},World of Warcraft
 		Sleep, 250
-	}	
+	}
 	if OutputVar = 0x020202
 	{
 		ControlSend,,{Numpad2},World of Warcraft

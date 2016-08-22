@@ -31,7 +31,7 @@ frame:SetScript("OnEvent", frame.OnEvent);
 
 function apollo_OnUpdate(self, elapsed)
 	apollo.lastRun = apollo.lastRun or 0
-	if apollo.lastRun > GetTime() - .250 then return; end;
+--	if apollo.lastRun > GetTime() - .250 then return; end;
 --	print("test")
 	
 	local target, ability

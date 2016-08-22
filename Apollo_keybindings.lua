@@ -1,4 +1,3 @@
---[[
 apollo.abilityKeybinding = {
 	"NUMPAD1",
 	"NUMPAD2",
@@ -40,50 +39,6 @@ apollo.abilityKeybinding = {
 	"SHIFT-NUMPAD8",
 	"SHIFT-NUMPAD9",
 	"SHIFT-NUMPAD0",
-	}
-]]
-
-apollo.abilityKeybinding = {
-	"NUMPAD1",
-	"NUMPAD2",
-	"NUMPAD3",
-	"NUMPAD4",
-	"NUMPAD5",
-	"NUMPAD6",
-	"NUMPAD7",
-	"NUMPAD8",
-	"NUMPAD9",
-	"NUMPAD0",
-	"ALT-A",
-	"ALT-B",
-	"ALT-C",
-	"ALT-D",
-	"ALT-E",
-	"ALT-F",
-	"ALT-G",
-	"ALT-H",
-	"ALT-I",
-	"ALT-J",
-	"ALT-K",
-	"ALT-L",
-	"ALT-M",
-	"ALT-N",
-	"ALT-O",
-	"ALT-P",
-	"ALT-Q",
-	"ALT-R",
-	"ALT-S",
-	"ALT-T",
-	"ALT-U",
-	"ALT-V",
-	"ALT-W",
-	"ALT-X",
-	"ALT-Y",
-	"ALT-Z",
-	"ALT-;",
-	"ALT-/",
-	"ALT-*",
-	"ALT-+",
 	}
 	
 apollo.targetKeybinding = {

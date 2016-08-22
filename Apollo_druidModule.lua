@@ -32,11 +32,11 @@ end
 local function tankHealRejuvenation(target)
 	local spellName = "Rejuvenation"
 	local unitBuff
-	if select(4,GetTalentInfo(6,3,1)) then unitBuff = UnitBuff(target,"Rejuvenation (Germination)") and UnitBuff(target,"Rejuvenation") and true
-	else unitBuff = UnitBuff(target,"Rejuvenation"); end
+	if select(4,GetTalentInfo(6,3,1)) then unitBuff = UnitBuff(target,"Rejuvenation (Germination)",nil,"PLAYER") and UnitBuff(target,"Rejuvenation",nil,"PLAYER") and true
+	else unitBuff = UnitBuff(target,"Rejuvenation",nil,"PLAYER"); end
 	local abundanceStacks = select(4,UnitBuff("player","Abundance")) or 0
 	
-	local spellCast = condBaseHealResto(target, spellName) and (not unitBuff) and (unitHealthPct(target) < .9) and isTank(target) and hasThreat(target)
+	local spellCast = condBaseHealResto(target, spellName) and (not unitBuff) and (unitHealthPct(target) < .9) and isTank(target)
 
 	return spellCast, spellName
 end
@@ -51,7 +51,7 @@ end
 
 local function healHealingTouch(target)
 	local spellName = "Healing Touch"
-	if UnitLevel("player") < 26 then spellName = "Regrowth"; end;
+	if UnitLevel("player") < 90 then spellName = "Regrowth"; end;
 	local heal = (GetSpellBonusHealing() * 4)
 	local spellCast = condBaseHealResto(target,spellName) and (unitHealthPct(target) < .9) and (not isMoving())
 	
@@ -60,7 +60,7 @@ end
 
 local function healTankHealingTouch(target)
 	local spellName = "Healing Touch"
-	if UnitLevel("player") < 26 then spellName = "Regrowth"; end;
+	if UnitLevel("player") < 90 then spellName = "Regrowth"; end;
 	local spellCast = condBaseHealResto(target,spellName) and (unitHealthPct(target) < .7) and (not isMoving()) and isTank(target)
 	
 	return spellCast, spellName
@@ -69,8 +69,8 @@ end
 local function healRejuvenation(target)
 	local spellName = "Rejuvenation"
 	local unitBuff
-	if select(4,GetTalentInfo(6,3,1)) then unitBuff = UnitBuff(target,"Rejuvenation (Germination)") and UnitBuff(target,"Rejuvenation") and true
-	else unitBuff = UnitBuff(target,"Rejuvenation"); end
+	if select(4,GetTalentInfo(6,3,1)) then unitBuff = UnitBuff(target,"Rejuvenation (Germination)",nil,"PLAYER") and UnitBuff(target,"Rejuvenation",nil,"PLAYER") and true
+	else unitBuff = UnitBuff(target,"Rejuvenation",nil,"PLAYER"); end
 	local abundanceStacks = select(4,UnitBuff("player","Abundance")) or 0
 	
 	local spellCast = (isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (not unitBuff) and (unitHealthPct(target) < .9) and (abundanceStacks < 10)
@@ -104,7 +104,7 @@ end
 
 local function attackMoonfire(target)
 	local spellName = "Moonfire"
-	local unitDebuff = UnitDebuff(target,"Moonfire")
+	local unitDebuff = UnitDebuff(target,"Moonfire",nil,"PLAYER")
 	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (not unitDebuff)
 	
 	return spellCast, spellName
@@ -146,7 +146,7 @@ local function healTankRegrowth(target)
 	local spellName = "Regrowth"
 	local clearcasting = UnitBuff("player","Clearcasting")
 	local currentSpeed = GetUnitSpeed("player")
-	local regrowthBuff = UnitBuff(target, "Regrowth")
+	local regrowthBuff = UnitBuff(target, "Regrowth",nil,"PLAYER")
 	
 	AD.lastRegrowth = AD.lastRegrowth or 0
 	if UnitCastingInfo("player") == "Regrowth" then AD.lastRegrowth = GetTime(); end;
@@ -178,8 +178,8 @@ local function healLifeBloom(target)
 	local unitBuff = false
 	for i,v in ipairs(apollo.groupNames) do
 		if (UnitExists(v)) then
-			unitBuff = (UnitBuff(v,"Lifebloom"))
-			if unitBuff then break; end;
+			unitBuff = UnitBuff(v,"Lifebloom",nil,"PLAYER")
+			if (unitBuff) and (caster ~= "player") then break; end;
 		end
 	end
 	
@@ -374,7 +374,7 @@ end
 function AD.feralSkillRotation()
 	local skillRotation = {
 		healRenewal,
-		apollo.healEternalAmuletOfTheRedeemed,
+	--	apollo.healEternalAmuletOfTheRedeemed,
 		attackCatForm,
 		healPredatorySwiftness,
 		healSwiftmend,
