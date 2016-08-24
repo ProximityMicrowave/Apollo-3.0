@@ -2,6 +2,8 @@ apollo = {}
 apollo.druid = {}
 apollo.monk = {}
 apollo.warrior = {}
+apollo.paladin = {}
+apollo.mage = {}
 apollo.demonHunter = {}
 apollo.groupNames = {}
 apollo.aoeToggle = false
@@ -81,6 +83,7 @@ function apollo.getPlayerRotation()
 	if InCombatLockdown() then return; end;
 	local playerClass = UnitClass("player")
 	local playerSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+--	print(playerClass,playerSpec)
 	
 	apollo.skillRotation = {}
 	if playerClass == "Druid" and playerSpec == "Restoration" then apollo.skillRotation = apollo.druid.restorationSkillRotation(); end;
@@ -89,6 +92,10 @@ function apollo.getPlayerRotation()
 	if playerClass == "Demon Hunter" and playerSpec == "Havoc" then apollo.skillRotation = apollo.demonHunter.havocSkillRotation(); end;
 	if playerClass == "Warrior" and playerSpec == "Arms" then apollo.skillRotation = apollo.warrior.armsSkillRotation(); end;
 	if playerClass == "Warrior" and playerSpec == "Protection" then apollo.skillRotation = apollo.warrior.protectionSkillRotation(); end;
+	if playerClass == "Paladin" and playerSpec == "Retribution" then apollo.skillRotation = apollo.paladin.retributionSkillRotation(); end;
+	if playerClass == "Paladin" and playerSpec == "Holy" then apollo.skillRotation = apollo.paladin.holySkillRotation(); end;
+	if playerClass == "Mage" and playerSpec == "Fire" then apollo.skillRotation = apollo.mage.fireSkillRotation(); end;
+	
 end
 
 function apollo.assignKeybindings()
@@ -108,6 +115,7 @@ function apollo.assignKeybindings()
 		local target = groupType..(i + offset)
 		if target == "party0" then target = "player"; end;
 		if i == 41 then target = "target"; end;
+		if i == 42 then target = "targettarget"; end;
 		apollo.groupNames[i] = target
 		
 		local btnName = "apolloTarget"..i
@@ -127,7 +135,7 @@ function apollo.assignKeybindings()
 		btn:SetAttribute("type", "macro")
 		if skillName == "Healing Touch" then 
 			btn:SetAttribute("macrotext", "/console autounshift 0\n/use [nochanneling,nocursor,@focus]"..skillName.."\n/console autounshift 1")
-		elseif skillName == "Swiftmend" then
+		elseif skillName == "Swiftmend"  or skillName == "Pyroblast" or skillName == "Flame On" then
 			btn:SetAttribute("macrotext", "/stopcasting\n/use [nochanneling,nocursor,@focus]"..skillName)
 		else
 			btn:SetAttribute("macrotext", "/use [nochanneling,nocursor,@focus]"..skillName)
@@ -139,7 +147,7 @@ function apollo.assignKeybindings()
 end
 
 function apollo.pauseAddon()
-	local pauseSpells = {145205}
+	local pauseSpells = {145205,2120}
 	local eating = {"Refreshment", "Drink", "Food"}
 	
 	for i,v in ipairs(pauseSpells) do
@@ -256,8 +264,8 @@ function apollo.affectingCombat(target)
 	return UnitAffectingCombat(target) or false
 end
 
-function apollo.isMoving()
-	if GetUnitSpeed("player") == 0 then return false else return true; end;
+function apollo.isMoving(target)
+	if GetUnitSpeed(target) == 0 then return false else return true; end;
 end
 
 function apollo.isTank(target)

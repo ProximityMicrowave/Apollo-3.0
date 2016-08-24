@@ -14,3 +14,5 @@ Apollo_druidModule.lua
 Apollo_monkModule.lua
 Apollo_demonhunterModule.lua
 Apollo_warriorModule.lua
+Apollo_paladinModule.lua
+Apollo_mageModule.lua

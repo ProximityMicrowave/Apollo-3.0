@@ -338,6 +338,11 @@ Loop
 		ControlSend,,{ctrl down}{shift down}{F1}{ctrl up}{shift up},World of Warcraft
 		Sleep, 250
 	}
+	if OutputVar = 0x2A0000
+	{
+		ControlSend,,{ctrl down}{shift down}{F2}{ctrl up}{shift up},World of Warcraft
+		Sleep, 250
+	}
 }
 
 ;#IfWinActive

@@ -10,13 +10,13 @@ local offCooldown = apollo.offCooldown
 local getEnergy = apollo.getEnergy
 local getComboPoints = apollo.getComboPoints
 local canInterupt = apollo.canInterupt
-local lowMan = apollo.lowMana
+local lowMana = apollo.lowMana
 local isMoving = apollo.isMoving
 local affectingCombat = apollo.affectingCombat
 local isTank = apollo.isTank
 
 local function condBaseHealResto(target, spellName)
-	return (isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (not lowMana)
+	return (isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) --and (not lowMana)
 end
 
 local function condBaseAttackFeral(target, spellName)
@@ -53,7 +53,7 @@ local function healHealingTouch(target)
 	local spellName = "Healing Touch"
 	if UnitLevel("player") < 90 then spellName = "Regrowth"; end;
 	local heal = (GetSpellBonusHealing() * 4)
-	local spellCast = condBaseHealResto(target,spellName) and (unitHealthPct(target) < .9) and (not isMoving())
+	local spellCast = condBaseHealResto(target,spellName) and (unitHealthPct(target) < .9) and (not isMoving("player"))
 	
 	return spellCast, spellName
 end
@@ -61,7 +61,7 @@ end
 local function healTankHealingTouch(target)
 	local spellName = "Healing Touch"
 	if UnitLevel("player") < 90 then spellName = "Regrowth"; end;
-	local spellCast = condBaseHealResto(target,spellName) and (unitHealthPct(target) < .7) and (not isMoving()) and isTank(target)
+	local spellCast = condBaseHealResto(target,spellName) and (unitHealthPct(target) < .7) and (not isMoving("player")) and isTank(target)
 	
 	return spellCast, spellName
 end
@@ -179,12 +179,12 @@ local function healLifeBloom(target)
 	for i,v in ipairs(apollo.groupNames) do
 		if (UnitExists(v)) then
 			unitBuff = UnitBuff(v,"Lifebloom",nil,"PLAYER")
-			if (unitBuff) and (caster ~= "player") then break; end;
+			if (unitBuff) then break; end;
 		end
 	end
 	
 	local conditionSet1 = condBaseHealResto(target, spellName)
-	local conditionSet2 = (hasThreat(target)) and (not unitBuff) and isTank(target)
+	local conditionSet2 = InCombatLockdown() and (not unitBuff) and isTank(target)
 	local spellCast = conditionSet1 and conditionSet2
 	
 	return spellCast, spellName
@@ -362,9 +362,9 @@ function AD.restorationSkillRotation()
 		--OTHER ACTIONS--
 		apollo.buffWhispersOfInsanity,
 		attackMoonfire,
-		attackMoonkinForm,
-		attackStarsurge,
-		attackLunarStrike,
+--		attackMoonkinForm,
+--		attackStarsurge,
+--		attackLunarStrike,
 		attackSolarWrath,
 --		travelIndoors,
 	}
