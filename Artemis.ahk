@@ -343,6 +343,46 @@ Loop
 		ControlSend,,{ctrl down}{shift down}{F2}{ctrl up}{shift up},World of Warcraft
 		Sleep, 250
 	}
+	if OutputVar = 0x2B0000
+	{
+		ControlSend,,{ctrl down}{shift down}{F3}{ctrl up}{shift up},World of Warcraft
+		Sleep, 250
+	}
+	if OutputVar = 0x2C0000
+	{
+		ControlSend,,{ctrl down}{shift down}{F4}{ctrl up}{shift up},World of Warcraft
+		Sleep, 250
+	}
+	if OutputVar = 0x2D0000
+	{
+		ControlSend,,{ctrl down}{shift down}{F5}{ctrl up}{shift up},World of Warcraft
+		Sleep, 250
+	}
+	if OutputVar = 0x2E0000
+	{
+		ControlSend,,{ctrl down}{shift down}{F6}{ctrl up}{shift up},World of Warcraft
+		Sleep, 250
+	}
+	if OutputVar = 0x2F0000
+	{
+		ControlSend,,{ctrl down}{shift down}{F7}{ctrl up}{shift up},World of Warcraft
+		Sleep, 250
+	}
+	if OutputVar = 0x300000
+	{
+		ControlSend,,{ctrl down}{shift down}{F8}{ctrl up}{shift up},World of Warcraft
+		Sleep, 250
+	}
+	if OutputVar = 0x310000
+	{
+		ControlSend,,{ctrl down}{shift down}{F8}{ctrl up}{shift up},World of Warcraft
+		Sleep, 250
+	}
+	if OutputVar = 0x320000
+	{
+		ControlSend,,{ctrl down}{shift down}{F10}{ctrl up}{shift up},World of Warcraft
+		Sleep, 250
+	}
 }
 
 ;#IfWinActive

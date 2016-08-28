@@ -31,6 +31,21 @@ local function healIceBarrier(target)
 	return spellCast, spellName
 end
 
+local function attackCombustion(target)
+	local spellName = "Combustion"
+	local spellCast = (isFriend(target)) and (notDead(target)) and (isUsable(spellName)) and (offCooldown(spellName)) and (UnitIsUnit("player",target)) and (InCombatLockdown())
+	
+	return spellCast, spellName
+end
+
+local function attackRuneOfPower(target)
+	local spellName = "Rune of Power"
+	local runeCharges = GetSpellCharges(spellName)
+	local spellCast = (isFriend(target)) and (notDead(target)) and (isUsable(spellName)) and (offCooldown(spellName)) and (UnitIsUnit("player",target)) and (InCombatLockdown()) and ((runeCharges == 2) or offCooldown("Combustion"))
+	
+	return spellCast, spellName
+end
+
 local function attackFireball(target)
 	local spellName = "Fireball"
 	local iceFloes = UnitBuff("player","Ice Floes")
@@ -56,8 +71,8 @@ end
 
 local function attackFlameOn(target)
 	local spellName = "Flame On"
-	local heatingUp = UnitBuff("player","Heating Up")
-	local spellCast = (isFriend(target)) and (notDead(target)) and (isUsable(spellName)) and (offCooldown(spellName)) and (UnitIsUnit("player",target)) and heatingUp
+	local fireBlastCooldown = offCooldown("Fire Blast")
+	local spellCast = (isFriend(target)) and (notDead(target)) and (isUsable(spellName)) and (offCooldown(spellName)) and (UnitIsUnit("player",target)) and (not fireBlastCooldown)
 	
 	return spellCast, spellName
 end
@@ -73,11 +88,13 @@ end
 function apollo.mage.fireSkillRotation()
 	local skillRotation = {
 		healIceBarrier,
+		attackRuneOfPower,
+		attackCombustion,
 		attackPyroblast,
 		attackFireBlast,
 		attackFlameOn,
 		attackFireball,
-		attackScorch,
+--		attackScorch,
 	}
 
 	return skillRotation

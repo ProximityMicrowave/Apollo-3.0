@@ -12,21 +12,30 @@ apollo.pauseToggle = false
 local frame = CreateFrame("FRAME");
 frame:RegisterEvent("PLAYER_ENTERING_WORLD");
 frame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED");
-frame:RegisterEvent("GROUP_ROSTER_UPDATE");
+--frame:RegisterEvent("GROUP_ROSTER_UPDATE");
 --frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 function frame:OnEvent(event, arg1)
---	if event ~= "COMBAT_LOG_EVENT_UNFILTERED" then
-		apollo.rebindkeys = true
---	end
+	apollo.rebindkeys = true
+	if event == "PLAYER_ENTERING_WORLD" then
+		for i=1,47 do
+			local btn
+			if i <= 5 then target = "party"..(i-1)
+			elseif i <= 45 then target = "raid"..(i-5)
+			elseif i == 46 then target = "target"
+			elseif i == 47 then target = "targettarget"; end;
+			if target == "party0" then target = "player"; end;
+			apollo.groupNames[i] = target
+			
+			local btnName = "apolloTarget"..i
+			if not _G[btnName] then btn = CreateFrame("Button", btnName, UIParent, "SecureActionButtonTemplate") else btn = _G[btnName]; end;
+			btn:SetAttribute("type", "macro");
+			btn:SetAttribute("macrotext", "/focus "..target)
+			SetBinding(apollo.targetKeybinding[i])
+			SetBindingClick(apollo.targetKeybinding[i], btnName)
+		end
+	end
 	
---	if (event == "COMBAT_LOG_EVENT_UNFILTERED") then
---		if (type == "SPELL_HEAL") then
---		local spellId, spellName, spellSchool, amount, overkill, school, resisted, blocked, absorbed, critical, glancing, crushing = select(12, ...)
---			if (spellName == "Healing Touch") then
---				apollo.druid.predatorySwiftnessCastTime = GetTime()
---			end
---		end
---	end
+
 end
 frame:SetScript("OnEvent", frame.OnEvent);
 
@@ -102,20 +111,22 @@ function apollo.assignKeybindings()
 	if InCombatLockdown() then return end;
 	local groupType, offset
 	
-	if IsInRaid() == true then 
-		groupType = "raid"
-		offset = 0
-	else 
-		groupType = "party"
-		offset = -1
-	end
+--	if IsInRaid() == true then 
+--		groupType = "raid"
+--		offset = 0
+--	else 
+--		groupType = "party"
+--		offset = -1
+--	end
 
-	for i=1,42 do
+--[[
+	for i=1,47 do
 		local btn
-		local target = groupType..(i + offset)
+		if i <= 5 then target = "party"..(i-1)
+		elseif i <= 45 then target = "raid"..(i-5)
+		elseif i == 46 then target = "target"
+		elseif i == 47 then target = "targettarget"; end;
 		if target == "party0" then target = "player"; end;
-		if i == 41 then target = "target"; end;
-		if i == 42 then target = "targettarget"; end;
 		apollo.groupNames[i] = target
 		
 		local btnName = "apolloTarget"..i
@@ -125,6 +136,7 @@ function apollo.assignKeybindings()
 		SetBinding(apollo.targetKeybinding[i])
 		SetBindingClick(apollo.targetKeybinding[i], btnName)
 	end
+]]
 	--------------------------------------------------------------------------------------
 	local skillRotation = apollo.skillRotation or {}
 	for i in ipairs(skillRotation) do
@@ -135,7 +147,7 @@ function apollo.assignKeybindings()
 		btn:SetAttribute("type", "macro")
 		if skillName == "Healing Touch" then 
 			btn:SetAttribute("macrotext", "/console autounshift 0\n/use [nochanneling,nocursor,@focus]"..skillName.."\n/console autounshift 1")
-		elseif skillName == "Swiftmend"  or skillName == "Pyroblast" or skillName == "Flame On" then
+		elseif skillName == "Swiftmend" then
 			btn:SetAttribute("macrotext", "/stopcasting\n/use [nochanneling,nocursor,@focus]"..skillName)
 		else
 			btn:SetAttribute("macrotext", "/use [nochanneling,nocursor,@focus]"..skillName)

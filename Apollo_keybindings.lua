@@ -84,4 +84,9 @@ apollo.targetKeybinding = {
 	"ALT-CTRL-F10",
 	"CTRL-SHIFT-F1",
 	"CTRL-SHIFT-F2",
+	"CTRL-SHIFT-F3",
+	"CTRL-SHIFT-F4",
+	"CTRL-SHIFT-F5",
+	"CTRL-SHIFT-F6",
+	"CTRL-SHIFT-F7",
 }

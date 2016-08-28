@@ -36,7 +36,7 @@ local function tankHealRejuvenation(target)
 	else unitBuff = UnitBuff(target,"Rejuvenation",nil,"PLAYER"); end
 	local abundanceStacks = select(4,UnitBuff("player","Abundance")) or 0
 	
-	local spellCast = condBaseHealResto(target, spellName) and (not unitBuff) and (unitHealthPct(target) < .9) and isTank(target)
+	local spellCast = condBaseHealResto(target, spellName) and (not unitBuff) and InCombatLockdown() and isTank(target)
 
 	return spellCast, spellName
 end
@@ -123,7 +123,7 @@ local function healNaturesCure(target)
 	local spellName = "Nature's Cure"
 	if UnitLevel("player") < 18 then return false, spellName; end;
 	local debuff, dispellType
-	local exclusionList = {"Frostbolt", "Thunderclap", "Chilled"}
+	local exclusionList = {"Frostbolt", "Thunderclap", "Chilled", "Unstable Affliction"}
 
 	for i = 1,40 do
 		local a,_,_,_,b = UnitDebuff(target,i,true)
