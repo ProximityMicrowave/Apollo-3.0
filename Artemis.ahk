@@ -131,6 +131,11 @@ Loop
 		ControlSend,,{alt down}{Numpad2}{alt up},World of Warcraft
 		Sleep, 250
 	}
+	if OutputVar = 0x171717
+	{
+		ControlSend,,{alt down}{Numpad3}{alt up},World of Warcraft
+		Sleep, 250
+	}
 	
 	
 	if OutputVar = 0x010000
