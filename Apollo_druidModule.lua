@@ -91,7 +91,14 @@ end
 
 local function attackSolarWrath(target)
 	local spellName = "Solar Wrath"
-	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName))
+	local spellCast = condBaseAttackFeral(target, spellName)
+	
+	return spellCast, spellName
+end
+
+local function bearMangle(target)
+	local spellName = "Mangle"
+	local spellCast = condBaseAttackFeral(target, spellName)
 	
 	return spellCast, spellName
 end
@@ -262,7 +269,9 @@ end
 local function aoeThrash(target)
 	local spellName = "Thrash"
 	local unitDebuff = UnitDebuff("target","Thrash")
-	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange("Shred",target)) and (isUsable(spellName)) and (getEnergy() >= 50) and (not unitDebuff) and (apollo.aoeToggle)
+	local rangeSpell
+	if getShapeshiftForm() == "Cat Form" then rangeSpell = "Shred" elseif getShapeshiftForm() == "Bear Form" then rangeSpell = "Mangle"; end;
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange(rangeSpell,target)) and (isUsable(spellName)) and (getEnergy() >= 50) and (not unitDebuff) and (apollo.aoeToggle or getShapeshiftForm() == "Bear Form")
 	
 	return spellCast, spellName
 end
@@ -271,6 +280,20 @@ local function aoeSwipe(target)
 	local spellName = "Swipe"
 	local unitDebuff = UnitDebuff("target","Thrash")
 	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange("Shred",target)) and (isUsable(spellName)) and (getEnergy() >= 50) and (unitDebuff) and (apollo.aoeToggle)
+	
+	return spellCast, spellName
+end
+
+local function bearThrash(target)
+	local spellName = "Thrash"
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange("Mangle",target)) and (isUsable(spellName)) and (getShapeshiftForm() == "Bear Form") and (offCooldown(spellName))
+	
+	return spellCast, spellName
+end
+
+local function bearSwipe(target)
+	local spellName = "Swipe"
+	local spellCast = (not isFriend(target)) and (notDead(target)) and (inRange("Mangle",target)) and (isUsable(spellName)) and (getShapeshiftForm() == "Bear Form")
 	
 	return spellCast, spellName
 end
@@ -356,6 +379,20 @@ end
 
 local function healBarkSkin(target)
 	local spellName = "Barkskin"
+	local spellCast = (notDead(target)) and (isUsable(spellName)) and (UnitIsUnit("player",target)) and (offCooldown(spellName)) and (unitHealthPct(target) < .3)
+	
+	return spellCast, spellName
+end
+
+local function healIronfur(target)
+	local spellName = "Ironfur"
+	local spellCast = (notDead(target)) and (isUsable(spellName)) and (UnitIsUnit("player",target)) and (offCooldown(spellName)) and (unitHealthPct(target) < .9)
+	
+	return spellCast, spellName
+end
+
+local function healFrenziedRegeneration(target)
+	local spellName = "Frenzied Regeneration"
 	local spellCast = (notDead(target)) and (isUsable(spellName)) and (UnitIsUnit("player",target)) and (offCooldown(spellName)) and (unitHealthPct(target) < .7)
 	
 	return spellCast, spellName
@@ -418,6 +455,19 @@ function AD.feralSkillRotation()
 		attackAshamanesFrenzy,
 		apollo.buffWhispersOfInsanity,
 --		travelIndoors,
+	}
+
+	return skillRotation
+end
+
+function AD.guardianSkillRotation()
+	local skillRotation = {
+		healIronfur,
+		healFrenziedRegeneration,
+		healBarkSkin,
+		bearThrash,
+		bearMangle,
+		bearSwipe,
 	}
 
 	return skillRotation

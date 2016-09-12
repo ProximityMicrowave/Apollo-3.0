@@ -2,7 +2,7 @@
 ; #Warn  ; Enable warnings to assist with detecting common errors.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-;SetKeyDelay, -1, -1
+SetKeyDelay, -1, -1
 Menu, Tray, Icon, %A_ScriptDir%\wowlight.ico,,1
 #maxthreadsperhotkey 6
 #SingleInstance force
@@ -11,125 +11,217 @@ Menu, Tray, Icon, %A_ScriptDir%\wowlight.ico,,1
 Macro1:
 Loop
 {
-;	if WinActive("ahk_class".GxWindowClass)
+
 	CoordMode, Pixel, Screen
-	PixelGetColor, Check1, 0, 0, RGB
-	Sleep, 42
-	PixelGetColor, Check2, 0, 0, RGB
-	if Check1 = %Check2%
-	{
-		OutputVar := Check1
-	}
+	PixelGetColor, OutputVar, 0, 0, RGB
+	Random, rand, 250, 250
 	
 	if OutputVar = 0x010101
 	{
-		ControlSend,,{Numpad1},World of Warcraft
-		Sleep, 250
-	}	
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x010101 
+		{
+			ControlSend,,{Numpad1},World of Warcraft
+		}
+	}
 	if OutputVar = 0x020202
 	{
-		ControlSend,,{Numpad2},World of Warcraft
-		Sleep, 250
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x020202 
+		{
+			ControlSend,,{Numpad2},World of Warcraft
+		}
 	}
 	if OutputVar = 0x030303
 	{
-		ControlSend,,{Numpad3},World of Warcraft
-		Sleep, 250
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x030303 
+		{
+			ControlSend,,{Numpad3},World of Warcraft
+		}
 	}
 	if OutputVar = 0x040404
 	{
-		ControlSend,,{Numpad4},World of Warcraft
-		Sleep, 250
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x040404 
+		{
+			ControlSend,,{Numpad4},World of Warcraft
+		}
 	}
 	if OutputVar = 0x050505
 	{
-		ControlSend,,{Numpad5},World of Warcraft
-		Sleep, 250
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x050505 
+		{
+			ControlSend,,{Numpad5},World of Warcraft
+		}
 	}
 	if OutputVar = 0x060606
 	{
-		ControlSend,,{Numpad6},World of Warcraft
-		Sleep, 250
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x060606 
+		{
+			ControlSend,,{Numpad6},World of Warcraft
+		}
 	}
 	if OutputVar = 0x070707
 	{
-		ControlSend,,{Numpad7},World of Warcraft
-		Sleep, 250
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x070707 
+		{
+			ControlSend,,{Numpad7},World of Warcraft
+		}
 	}
 	if OutputVar = 0x080808
 	{
-		ControlSend,,{Numpad8},World of Warcraft
-		Sleep, 250
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x080808 
+		{
+			ControlSend,,{Numpad8},World of Warcraft
+		}
 	}
 	if OutputVar = 0x090909
 	{
-		ControlSend,,{Numpad9},World of Warcraft
-		Sleep, 250
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x090909 
+		{
+			ControlSend,,{Numpad9},World of Warcraft
+		}
 	}
 	if OutputVar = 0x0A0A0A
 	{
-		ControlSend,,{Numpad0},World of Warcraft
-		Sleep, 250
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x0A0A0A 
+		{
+			ControlSend,,{Numpad0},World of Warcraft
+		}
 	}
 	if OutputVar = 0x0B0B0B
 	{
-		ControlSend,,{alt down}{a}{alt up},World of Warcraft
-		Sleep, 250
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x0B0B0B 
+		{
+			ControlSend,,{ctrl down}{Numpad1}{ctrl up},World of Warcraft
+		}
 	}
 	if OutputVar = 0x0C0C0C
 	{
-		ControlSend,,{alt down}{b}{alt up},World of Warcraft
-		Sleep, 250
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x0C0C0C 
+		{
+			ControlSend,,{ctrl down}{Numpad2}{ctrl up},World of Warcraft
+		}
 	}
 	if OutputVar = 0x0D0D0D
 	{
-		ControlSend,,{alt down}{c}{alt up},World of Warcraft
-		Sleep, 250
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x0D0D0D 
+		{
+			ControlSend,,{ctrl down}{Numpad3}{ctrl up},World of Warcraft
+		}
 	}
 	if OutputVar = 0x0E0E0E
 	{
-		ControlSend,,{alt down}{d}{alt up},World of Warcraft
-		Sleep, 250
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x0E0E0E 
+		{
+			ControlSend,,{ctrl down}{Numpad4}{ctrl up},World of Warcraft
+		}
 	}
 	if OutputVar = 0x0F0F0F
 	{
-		ControlSend,,{alt down}{e}{alt up},World of Warcraft
-		Sleep, 250
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x0F0F0F 
+		{
+			ControlSend,,{ctrl down}{Numpad5}{ctrl up},World of Warcraft
+		}
 	}
 	if OutputVar = 0x101010
 	{
-		ControlSend,,{alt down}{f}{alt up},World of Warcraft
-		Sleep, 250
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x101010 
+		{
+			ControlSend,,{ctrl down}{Numpad6}{ctrl up},World of Warcraft
+		}
 	}
 	if OutputVar = 0x111111
 	{
-		ControlSend,,{alt down}{g}{alt up},World of Warcraft
-		Sleep, 250
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x111111 
+		{
+			ControlSend,,{ctrl down}{Numpad7}{ctrl up},World of Warcraft
+		}
 	}
 	if OutputVar = 0x121212
 	{
-		ControlSend,,{alt down}{h}{alt up},World of Warcraft
-		Sleep, 250
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x121212 
+		{
+			ControlSend,,{ctrl down}{Numpad8}{ctrl up},World of Warcraft
+		}
 	}
 	if OutputVar = 0x131313
 	{
-		ControlSend,,{alt down}{i}{alt up},World of Warcraft
-		Sleep, 250
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x131313 
+		{
+			ControlSend,,{ctrl down}{Numpad9}{ctrl up},World of Warcraft
+		}
 	}
 	if OutputVar = 0x141414
 	{
-		ControlSend,,{alt down}{j}{alt up},World of Warcraft
-		Sleep, 250
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x141414 
+		{
+			ControlSend,,{ctrl down}{Numpad0}{ctrl up},World of Warcraft
+		}
 	}
 	if OutputVar = 0x151515
 	{
-		ControlSend,,{alt down}{k}{alt up},World of Warcraft
-		Sleep, 250
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x151515 
+		{
+			ControlSend,,{alt down}{Numpad1}{alt up},World of Warcraft
+		}
 	}
 	if OutputVar = 0x161616
 	{
-		ControlSend,,{alt down}{l}{alt up},World of Warcraft
-		Sleep, 250
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x161616 
+		{
+			ControlSend,,{alt down}{Numpad2}{alt up},World of Warcraft
+		}
+	}
+	if OutputVar = 0x171717
+	{
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x171717 
+		{
+			ControlSend,,{alt down}{Numpad3}{alt up},World of Warcraft
+		}
 	}
 	
 	
@@ -338,4 +430,71 @@ Loop
 		ControlSend,,{ctrl down}{shift down}{F1}{ctrl up}{shift up},World of Warcraft
 		Sleep, 250
 	}
+	if OutputVar = 0x2A0000
+	{
+		ControlSend,,{ctrl down}{shift down}{F2}{ctrl up}{shift up},World of Warcraft
+		Sleep, 250
+	}
+	if OutputVar = 0x2B0000
+	{
+		ControlSend,,{ctrl down}{shift down}{F3}{ctrl up}{shift up},World of Warcraft
+		Sleep, 250
+	}
+	if OutputVar = 0x2C0000
+	{
+		ControlSend,,{ctrl down}{shift down}{F4}{ctrl up}{shift up},World of Warcraft
+		Sleep, 250
+	}
+	if OutputVar = 0x2D0000
+	{
+		ControlSend,,{ctrl down}{shift down}{F5}{ctrl up}{shift up},World of Warcraft
+		Sleep, 250
+	}
+	if OutputVar = 0x2E0000
+	{
+		ControlSend,,{ctrl down}{shift down}{F6}{ctrl up}{shift up},World of Warcraft
+		Sleep, 250
+	}
+	if OutputVar = 0x2F0000
+	{
+		ControlSend,,{ctrl down}{shift down}{F7}{ctrl up}{shift up},World of Warcraft
+		Sleep, 250
+	}
+	if OutputVar = 0x300000
+	{
+		ControlSend,,{ctrl down}{shift down}{F8}{ctrl up}{shift up},World of Warcraft
+		Sleep, 250
+	}
+	if OutputVar = 0x310000
+	{
+		ControlSend,,{ctrl down}{shift down}{F8}{ctrl up}{shift up},World of Warcraft
+		Sleep, 250
+	}
+	if OutputVar = 0x320000
+	{
+		ControlSend,,{ctrl down}{shift down}{F10}{ctrl up}{shift up},World of Warcraft
+		Sleep, 250
+	}
 }
+
+;#IfWinActive
+
+;`::
+;Menu, Tray, Icon, %A_ScriptDir%\wowlight.ico,,1
+
+;  soundbeep 
+
+; if resuming from sleep our status flag is set and a second beep is issued 
+
+;  if issleeping 
+  
+;	Menu, Tray, Icon, %A_ScriptDir%\wowdark.ico,,1
+;    soundbeep 
+
+; toogle the status flag 
+
+;  issleeping := !issleeping 
+
+;  pause 
+
+;  return
