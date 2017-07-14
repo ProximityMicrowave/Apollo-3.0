@@ -1,4 +1,4 @@
-## Interface: 70000
+## Interface: 70100
 ## Title: Apollo 3.0
 ## Notes: God of Prophecy.
 ## Author: Proximity_Microwave
@@ -16,3 +16,7 @@ Apollo_demonhunterModule.lua
 Apollo_warriorModule.lua
 Apollo_paladinModule.lua
 Apollo_mageModule.lua
+Apollo_warlockModule.lua
+Apollo_hunterModule.lua
+Apollo_druidModuleRewrite.lua
+Apollo_rogueModule.lua

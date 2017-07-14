@@ -223,257 +223,303 @@ Loop
 			ControlSend,,{alt down}{Numpad3}{alt up},World of Warcraft
 		}
 	}
+	if OutputVar = 0x181818
+	{
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x181818 
+		{
+			ControlSend,,{alt down}{Numpad4}{alt up},World of Warcraft
+		}
+	}
+	if OutputVar = 0x191919
+	{
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x191919 
+		{
+			ControlSend,,{alt down}{Numpad5}{alt up},World of Warcraft
+		}
+	}
+	if OutputVar = 0x1A1A1A
+	{
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x1A1A1A 
+		{
+			ControlSend,,{alt down}{Numpad6}{alt up},World of Warcraft
+		}
+	}
+	if OutputVar = 0x1B1B1B
+	{
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x1B1B1B 
+		{
+			ControlSend,,{alt down}{Numpad7}{alt up},World of Warcraft
+		}
+	}
+	if OutputVar = 0x1C1C1C
+	{
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x1C1C1C 
+		{
+			ControlSend,,{alt down}{Numpad8}{alt up},World of Warcraft
+		}
+	}
+
 	
 	
 	if OutputVar = 0x010000
 	{
 		ControlSend,,{F1},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x020000
 	{
 		ControlSend,,{F2},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x030000
 	{
 		ControlSend,,{F3},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x040000
 	{
 		ControlSend,,{F4},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x050000
 	{
 		ControlSend,,{F5},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x060000
 	{
 		ControlSend,,{F6},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x070000
 	{
 		ControlSend,,{F7},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x080000
 	{
 		ControlSend,,{F8},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x090000
 	{
 		ControlSend,,{F9},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x0A0000
 	{
 		ControlSend,,{F10},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x0B0000
 	{
 		ControlSend,,{ctrl down}{F1}{ctrl up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x0C0000
 	{
 		ControlSend,,{ctrl down}{F2}{ctrl up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x0D0000
 	{
 		ControlSend,,{ctrl down}{F3}{ctrl up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x0E0000
 	{
 		ControlSend,,{ctrl down}{F4}{ctrl up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x0F0000
 	{
 		ControlSend,,{ctrl down}{F5}{ctrl up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x100000
 	{
 		ControlSend,,{ctrl down}{F6}{ctrl up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x110000
 	{
 		ControlSend,,{ctrl down}{F7}{ctrl up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x120000
 	{
 		ControlSend,,{ctrl down}{F8}{ctrl up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x130000
 	{
 		ControlSend,,{ctrl down}{F9}{ctrl up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x140000
 	{
 		ControlSend,,{ctrl down}{F10}{ctrl up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x150000
 	{
 		ControlSend,,{shift down}{F1}{shift up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x160000
 	{
 		ControlSend,,{shift down}{F2}{shift up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x170000
 	{
 		ControlSend,,{shift down}{F3}{shift up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x180000
 	{
 		ControlSend,,{shift down}{F4}{shift up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x190000
 	{
 		ControlSend,,{shift down}{F5}{shift up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x1A0000
 	{
 		ControlSend,,{shift down}{F6}{shift up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x1B0000
 	{
 		ControlSend,,{shift down}{F7}{shift up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x1C0000
 	{
 		ControlSend,,{shift down}{F8}{shift up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x1D0000
 	{
 		ControlSend,,{shift down}{F9}{shift up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x1E0000
 	{
 		ControlSend,,{shift down}{F10}{shift up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x1F0000
 	{
 		ControlSend,,{alt down}{ctrl down}{F1}{alt up}{ctrl up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x200000
 	{
 		ControlSend,,{alt down}{ctrl down}{F2}{alt up}{ctrl up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x210000
 	{
 		ControlSend,,{alt down}{ctrl down}{F3}{alt up}{ctrl up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x220000
 	{
 		ControlSend,,{alt down}{ctrl down}{F4}{alt up}{ctrl up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x230000
 	{
 		ControlSend,,{alt down}{ctrl down}{F5}{alt up}{ctrl up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x240000
 	{
 		ControlSend,,{alt down}{ctrl down}{F6}{alt up}{ctrl up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x250000
 	{
 		ControlSend,,{alt down}{ctrl down}{F7}{alt up}{ctrl up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x260000
 	{
 		ControlSend,,{alt down}{ctrl down}{F8}{alt up}{ctrl up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x270000
 	{
 		ControlSend,,{alt down}{ctrl down}{F9}{alt up}{ctrl up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x280000
 	{
 		ControlSend,,{alt down}{ctrl down}{F10}{alt up}{ctrl up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x290000
 	{
 		ControlSend,,{ctrl down}{shift down}{F1}{ctrl up}{shift up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x2A0000
 	{
 		ControlSend,,{ctrl down}{shift down}{F2}{ctrl up}{shift up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x2B0000
 	{
 		ControlSend,,{ctrl down}{shift down}{F3}{ctrl up}{shift up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x2C0000
 	{
 		ControlSend,,{ctrl down}{shift down}{F4}{ctrl up}{shift up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x2D0000
 	{
 		ControlSend,,{ctrl down}{shift down}{F5}{ctrl up}{shift up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x2E0000
 	{
 		ControlSend,,{ctrl down}{shift down}{F6}{ctrl up}{shift up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x2F0000
 	{
 		ControlSend,,{ctrl down}{shift down}{F7}{ctrl up}{shift up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x300000
 	{
 		ControlSend,,{ctrl down}{shift down}{F8}{ctrl up}{shift up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x310000
 	{
 		ControlSend,,{ctrl down}{shift down}{F8}{ctrl up}{shift up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 	if OutputVar = 0x320000
 	{
 		ControlSend,,{ctrl down}{shift down}{F10}{ctrl up}{shift up},World of Warcraft
-		Sleep, 250
+;		Sleep, 250
 	}
 }
 

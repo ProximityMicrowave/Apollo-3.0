@@ -5,6 +5,9 @@ apollo.warrior = {}
 apollo.paladin = {}
 apollo.mage = {}
 apollo.demonHunter = {}
+apollo.warlock = {}
+apollo.hunter = {}
+apollo.rogue = {}
 apollo.groupNames = {}
 apollo.aoeToggle = false
 apollo.pauseToggle = false
@@ -12,11 +15,16 @@ apollo.pauseToggle = false
 local frame = CreateFrame("FRAME");
 frame:RegisterEvent("PLAYER_ENTERING_WORLD");
 frame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED");
---frame:RegisterEvent("GROUP_ROSTER_UPDATE");
+--frame:RegisterEvent("UNIT_AURA");
 --frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 function frame:OnEvent(event, arg1)
-	apollo.rebindkeys = true
+
+	if event == "PLAYER_SPECIALIZATION_CHANGED" then
+		apollo.rebindkeys = true
+	end
+	
 	if event == "PLAYER_ENTERING_WORLD" then
+		apollo.rebindkeys = true
 		for i=1,47 do
 			local btn
 			if i <= 5 then target = "party"..(i-1)
@@ -35,6 +43,9 @@ function frame:OnEvent(event, arg1)
 		end
 	end
 	
+	if event == "UNIT_AURA" then
+		apollo.runDebuffScan = true
+	end
 
 end
 frame:SetScript("OnEvent", frame.OnEvent);
@@ -42,7 +53,7 @@ frame:SetScript("OnEvent", frame.OnEvent);
 
 function apollo_OnUpdate(self, elapsed)
 	apollo.lastRun = apollo.lastRun or 0
---	if apollo.lastRun > GetTime() - .250 then return; end;
+	if apollo.lastRun > GetTime() - .250 then return; end;
 --	print("test")
 	
 	local target, ability
@@ -64,6 +75,7 @@ function apollo_OnUpdate(self, elapsed)
 	
 	apollo.lastRun = GetTime()
 	ColorDot:SetColorTexture(0,0,0,1)
+	apollo.runDebuffScan = false
 end
 
 function apollo.skillController()
@@ -73,6 +85,7 @@ function apollo.skillController()
 	for i in ipairs(skillRotation) do
 		for j in ipairs(priorityTarget) do
 			if skillRotation[i](priorityTarget[j]) then return i, priorityTarget[j]; end;
+--			if skillRotation[i](apollo.groupNames[j]) then return i, apollo.groupNames[j]; end;
 		end
 	end
 	
@@ -95,9 +108,9 @@ function apollo.getPlayerRotation()
 --	print(playerClass,playerSpec)
 	
 	apollo.skillRotation = {}
-	if playerClass == "Druid" and playerSpec == "Restoration" then apollo.skillRotation = apollo.druid.restorationSkillRotation(); end;
-	if playerClass == "Druid" and playerSpec == "Feral" then apollo.skillRotation = apollo.druid.feralSkillRotation(); end;
-	if playerClass == "Druid" and playerSpec == "Guardian" then apollo.skillRotation = apollo.druid.guardianSkillRotation(); end;
+	if playerClass == "Druid" and playerSpec == "Restoration" then apollo.skillRotation = apollo.druid.rewriteSkillRotation(); end;
+	if playerClass == "Druid" and playerSpec == "Feral" then apollo.skillRotation = apollo.druid.rewriteSkillRotation(); end;
+	if playerClass == "Druid" and playerSpec == "Guardian" then apollo.skillRotation = apollo.druid.rewriteSkillRotation(); end;
 	if playerClass == "Monk" and playerSpec == "Windwalker" then apollo.skillRotation = apollo.monk.windwalkerSkillRotation(); end;
 	if playerClass == "Demon Hunter" and playerSpec == "Havoc" then apollo.skillRotation = apollo.demonHunter.havocSkillRotation(); end;
 	if playerClass == "Warrior" and playerSpec == "Arms" then apollo.skillRotation = apollo.warrior.armsSkillRotation(); end;
@@ -105,6 +118,9 @@ function apollo.getPlayerRotation()
 	if playerClass == "Paladin" and playerSpec == "Retribution" then apollo.skillRotation = apollo.paladin.retributionSkillRotation(); end;
 	if playerClass == "Paladin" and playerSpec == "Holy" then apollo.skillRotation = apollo.paladin.holySkillRotation(); end;
 	if playerClass == "Mage" and playerSpec == "Fire" then apollo.skillRotation = apollo.mage.fireSkillRotation(); end;
+	if playerClass == "Warlock" and playerSpec == "Affliction" then apollo.skillRotation = apollo.warlock.afflictionSkillRotation(); end;
+	if playerClass == "Hunter" and playerSpec == "Beast Mastery" then apollo.skillRotation = apollo.hunter.beastmasterySkillRotation(); end;
+	if playerClass == "Rogue" and playerSpec == "Assassination" then apollo.skillRotation = apollo.rogue.assassinationSkillRotation(); end;
 	
 end
 
@@ -112,33 +128,6 @@ function apollo.assignKeybindings()
 	if InCombatLockdown() then return end;
 	local groupType, offset
 	
---	if IsInRaid() == true then 
---		groupType = "raid"
---		offset = 0
---	else 
---		groupType = "party"
---		offset = -1
---	end
-
---[[
-	for i=1,47 do
-		local btn
-		if i <= 5 then target = "party"..(i-1)
-		elseif i <= 45 then target = "raid"..(i-5)
-		elseif i == 46 then target = "target"
-		elseif i == 47 then target = "targettarget"; end;
-		if target == "party0" then target = "player"; end;
-		apollo.groupNames[i] = target
-		
-		local btnName = "apolloTarget"..i
-		if not _G[btnName] then btn = CreateFrame("Button", btnName, UIParent, "SecureActionButtonTemplate") else btn = _G[btnName]; end;
-		btn:SetAttribute("type", "macro");
-		btn:SetAttribute("macrotext", "/focus "..target)
-		SetBinding(apollo.targetKeybinding[i])
-		SetBindingClick(apollo.targetKeybinding[i], btnName)
-	end
-]]
-	--------------------------------------------------------------------------------------
 	local skillRotation = apollo.skillRotation or {}
 	for i in ipairs(skillRotation) do
 		local btn
@@ -146,16 +135,22 @@ function apollo.assignKeybindings()
 		local skillName = select(2, skillRotation[i]("player"))
 		if not _G[btnName] then btn = CreateFrame("Button", btnName, UIParent, "SecureActionButtonTemplate") else btn = _G[btnName]; end;
 		btn:SetAttribute("type", "macro")
-		if skillName == "Healing Touch" then 
+		if skillName == "Regrowth" then 
 			btn:SetAttribute("macrotext", "/console autounshift 0\n/use [nochanneling,nocursor,@focus]"..skillName.."\n/console autounshift 1")
-		elseif skillName == "Swiftmend" then
-			btn:SetAttribute("macrotext", "/stopcasting\n/use [nochanneling,nocursor,@focus]"..skillName)
+		elseif skillName == "Wild Growth" then
+			btn:SetAttribute("macrotext", "/use [nochanneling,nocursor,@player] Innervate\n/use [nochanneling,nocursor,@focus]"..skillName)
 		else
-			btn:SetAttribute("macrotext", "/use [nochanneling,nocursor,@focus]"..skillName)
+			btn:SetAttribute("macrotext", "/use [nochanneling,nocursor,@focus]"..skillName.."\n/startattack [combat,exists,harm,nostealth]")
 		end
 		SetBinding(apollo.abilityKeybinding[i])
 		SetBindingClick(apollo.abilityKeybinding[i], btnName)
 	end
+	
+	local btn = CreateFrame("Button", "PauseApollo", UIParent, "SecureActionButtonTemplate")
+	btn:SetAttribute("type", "macro")
+	btn:SetAttribute("macrotext", "/run apollo.pauseButton()")
+	SetBinding("`")
+	SetBindingClick("`", "PauseApollo")
 	
 end
 
@@ -171,7 +166,7 @@ function apollo.pauseAddon()
 		if UnitBuff("player",v) then return true; end;
 	end
 	
-	if ChatFrame1EditBox:IsVisible() then return true; end;
+	if ChatFrame1EditBoxFocusMid:IsVisible() then return true; end;
 	if LootFrame:IsVisible() then return true; end;
 	if apollo.pauseToggle then return true; end;
 	
@@ -196,8 +191,6 @@ function apollo.sortPriority()
 		priority[i] = k
 		i = i + 1;
 	end;
-	
---	table.insert(priority, "target")
 
 	return priority
 end
@@ -208,7 +201,7 @@ function apollo.unitHealthPct(target)
 	local incomingHealth = UnitGetIncomingHeals(target) or 0
 	
 	local healthPct = (health + incomingHealth) / healthMax
---	if UnitDebuff(target,"Gift of the Doomsayer") then healthPct = 1; end;
+	if UnitDebuff(target,"Gift of the Doomsayer") then healthPct = 1; end;
 	
 	return healthPct
 end
@@ -282,7 +275,7 @@ function apollo.isMoving(target)
 end
 
 function apollo.isTank(target)
-	if ((UnitGroupRolesAssigned(target) == "TANK" or GetUnitName(target) == "Oto the Protector")) then return true else return false; end;
+	if ((UnitGroupRolesAssigned(target) == "TANK" or GetUnitName(target) == "Oto the Protector" or GetUnitName(target) == "Travard")) then return true else return false; end;
 end
 
 function apollo.lowHealthCount(health, spellName)
@@ -295,15 +288,15 @@ function apollo.lowHealthCount(health, spellName)
 	if health < 0 then
 		health = health * -1
 		for i,v in ipairs(apollo.groupNames) do
-			if (apollo.missingHealth(v) >= health and UnitExists(v)) and apollo.inRange(spellName, apollo.groupNames[i]) then count = count + 1; end;
+			if (v ~= "target" or v ~= "targettarget") and (apollo.missingHealth(v) >= health and UnitExists(v)) and apollo.inRange(spellName, apollo.groupNames[i]) then count = count + 1; end;
 		end
 	elseif health <= 1 then
 		for i,v in ipairs(apollo.groupNames) do
-			if (apollo.unitHealthPct(v) <= health and UnitExists(v)) and apollo.inRange(spellName, apollo.groupNames[i]) then count = count + 1; end;
+			if (v ~= "target" or v ~= "targettarget") and (apollo.unitHealthPct(v) <= health and UnitExists(v)) and apollo.inRange(spellName, apollo.groupNames[i]) then count = count + 1; end;
 		end
 	elseif health > 1 then
 		for i,v in ipairs(apollo.groupNames) do
-			if (UnitHealth(v) <= health and UnitExists(v)) and apollo.inRange(spellName, apollo.groupNames[i]) then count = count + 1; end;
+			if (v ~= "target" or v ~= "targettarget") and (UnitHealth(v) <= health and UnitExists(v)) and apollo.inRange(spellName, apollo.groupNames[i]) then count = count + 1; end;
 		end
 	end
 		
@@ -315,7 +308,7 @@ function apollo.healHealthstone(target)
 	local cooldown = select(2,GetItemCooldown(5512))
 	local count = GetItemCount(5512)
 	
-	local spellCast = (apollo.notDead(target)) and (UnitIsUnit("player",target)) and (cooldown < 2) and (count > 0) and (apollo.unitHealthPct("player") < .6)
+	local spellCast = (apollo.notDead(target)) and (UnitIsUnit("player",target)) and (cooldown < 2) and (count > 0) and (apollo.unitHealthPct("player") < .4)
 	
 	return spellCast, spellName
 end

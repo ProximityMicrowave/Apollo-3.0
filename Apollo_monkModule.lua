@@ -18,7 +18,7 @@ local function getChi()
 end
 
 local function attackBasicCondition(spellName, target)
-	return (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (affectingCombat(target)) and (offCooldown(spellName))
+	return (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (offCooldown(spellName)) and ((affectingCombat(target)) or not IsInInstance())
 end
 
 local function healBasicCondition(spellName, target)

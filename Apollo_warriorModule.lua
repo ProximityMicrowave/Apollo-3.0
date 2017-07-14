@@ -15,7 +15,7 @@ local affectingCombat = apollo.affectingCombat
 local isTank = apollo.isTank
 
 local function attackBaseCondition(spellName, target)
-	return (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (offCooldown(spellName)) and (affectingCombat(target))
+	return (not isFriend(target)) and (notDead(target)) and (inRange(spellName,target)) and (isUsable(spellName)) and (offCooldown(spellName)) and ((affectingCombat(target)) or not IsInInstance())
 end
 
 local function attackSlam(target)
