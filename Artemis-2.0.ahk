@@ -268,6 +268,24 @@ Loop
 			ControlSend,,{alt down}{Numpad8}{alt up},World of Warcraft
 		}
 	}
+	if OutputVar = 0x1D1D1D
+	{
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x1D1D1D 
+		{
+			ControlSend,,{alt down}{Numpad9}{alt up},World of Warcraft
+		}
+	}
+	if OutputVar = 0x1F1F1F
+	{
+		Sleep, rand
+		PixelGetColor, Check3, 0, 0, RGB
+		if Check3 = 0x1F1F1F
+		{
+			ControlSend,,{alt down}{Numpad0}{alt up},World of Warcraft
+		}
+	}
 
 	
 	

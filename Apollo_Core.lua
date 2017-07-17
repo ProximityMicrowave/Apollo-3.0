@@ -108,9 +108,7 @@ function apollo.getPlayerRotation()
 --	print(playerClass,playerSpec)
 	
 	apollo.skillRotation = {}
-	if playerClass == "Druid" and playerSpec == "Restoration" then apollo.skillRotation = apollo.druid.rewriteSkillRotation(); end;
-	if playerClass == "Druid" and playerSpec == "Feral" then apollo.skillRotation = apollo.druid.rewriteSkillRotation(); end;
-	if playerClass == "Druid" and playerSpec == "Guardian" then apollo.skillRotation = apollo.druid.rewriteSkillRotation(); end;
+	if playerClass == "Druid" then apollo.skillRotation = apollo.druid.rewriteSkillRotation(); end;
 	if playerClass == "Monk" and playerSpec == "Windwalker" then apollo.skillRotation = apollo.monk.windwalkerSkillRotation(); end;
 	if playerClass == "Demon Hunter" and playerSpec == "Havoc" then apollo.skillRotation = apollo.demonHunter.havocSkillRotation(); end;
 	if playerClass == "Warrior" and playerSpec == "Arms" then apollo.skillRotation = apollo.warrior.armsSkillRotation(); end;
